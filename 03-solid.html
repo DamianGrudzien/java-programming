@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 — Zasady SOLID | Java Mastery</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.solid-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:2rem}
+.solid-header{display:flex;align-items:center;gap:1.1rem;padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);background:var(--bg3)}
+.solid-letter{font-family:var(--mono);font-size:2.4rem;font-weight:700;line-height:1;color:var(--accent)}
+.solid-name{font-size:1rem;font-weight:700}
+.solid-sub{font-family:var(--mono);font-size:.72rem;color:var(--text3);margin-top:.15rem}
+.solid-body{padding:1.4rem 1.5rem}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-logo">java<span>.mastery</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Strona główna</a>
+    <a href="01-podstawy.html">Podstawy</a>
+    <a href="02-oop.html">OOP</a>
+    <a href="03-solid.html" class="active">SOLID</a>
+    <a href="04-wzorce.html">Wzorce</a>
+    <a href="05-collections.html">Kolekcje</a>
+    <a href="06-streams.html">Streams</a>
+    <a href="07-wyjatki-testy.html">Wyjątki & Testy</a>
+    <a href="08-zaawansowane.html">Zaawansowane</a>
+  </div>
+</nav>
+<div class="breadcrumb">
+  <a href="index.html">java.mastery</a><span class="sep">/</span>
+  <span class="current">03 — Zasady SOLID</span>
+</div>
+<main class="page-wrap">
+  <header class="chapter-header">
+    <div class="chapter-num">ROZDZIAŁ 03</div>
+    <h1 class="chapter-title">Zasady SOLID</h1>
+    <p class="chapter-desc">Pięć fundamentalnych zasad projektowania obiektowego autorstwa Roberta C. Martina ("Uncle Bob"). Stosowanie SOLID prowadzi do kodu łatwego w utrzymaniu, testowaniu i rozszerzaniu.</p>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
+      <span class="badge purple">5 zasad</span>
+      <span class="badge">Poziom: Średniozaawansowany</span>
+    </div>
+  </header>
+
+  <div class="callout tip">
+    <div class="callout-icon">📚</div>
+    <div class="callout-body"><strong>Źródło:</strong> Zasady SOLID opisane przez Roberta C. Martina, szeroko udokumentowane przez FreeCodeCamp, Baeldung i HowToDoInJava. Wielokrotnie zweryfikowane — spójne we wszystkich źródłach.</div>
+  </div>
+
+  <!-- S -->
+  <div class="solid-card">
+    <div class="solid-header">
+      <div class="solid-letter">S</div>
+      <div>
+        <div class="solid-name">Single Responsibility Principle</div>
+        <div class="solid-sub">Zasada Jednej Odpowiedzialności</div>
+      </div>
+    </div>
+    <div class="solid-body">
+      <p class="prose">Klasa powinna mieć <strong>tylko jeden powód do zmiany</strong> — jedną odpowiedzialność. Jeśli klasa obsługuje logikę biznesową i jednocześnie zapis do pliku, ma dwa powody do zmiany.</p>
+
+      <div class="tabs-wrap">
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="tab(this,'s-bad')">❌ Naruszenie SRP</button>
+          <button class="tab-btn" onclick="tab(this,'s-good')">✅ Zgodnie z SRP</button>
+        </div>
+        <div id="s-bad" class="tab-panel active">
+          <div class="code-block">
+            <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Źle</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+            <pre><span class="kw">public class</span> <span class="cl">Raport</span> {
+    <span class="cm">// ❌ Ta klasa robi ZA DUŻO</span>
+    <span class="kw">public</span> <span class="cl">String</span> <span class="mth">generujTresc</span>() { <span class="cm">/* logika danych */</span> }
+    <span class="kw">public void</span> <span class="mth">zapiszDoBazy</span>() { <span class="cm">/* SQL — inny powód zmiany */</span> }
+    <span class="kw">public void</span> <span class="mth">wyslijEmailem</span>(<span class="cl">String</span> adres) { <span class="cm">/* SMTP — kolejny */</span> }
+    <span class="kw">public</span> <span class="cl">String</span> <span class="mth">formatujHTML</span>() { <span class="cm">/* prezentacja — jeszcze inny */</span> }
+    <span class="cm">// Zmiana formatu emaila wymaga zmiany tej klasy</span>
+    <span class="cm">// Zmiana bazy danych wymaga zmiany tej klasy</span>
+    <span class="cm">// Zmiana HTML wymaga zmiany tej klasy...</span>
+}</pre>
+          </div>
+        </div>
+        <div id="s-good" class="tab-panel">
+          <div class="code-block">
+            <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Dobrze</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+            <pre><span class="cm">// ✅ Każda klasa = jedna odpowiedzialność</span>
+<span class="kw">public class</span> <span class="cl">Raport</span> {
+    <span class="kw">public</span> <span class="cl">String</span> <span class="mth">generujTresc</span>() { <span class="cm">/* tylko logika treści */</span> }
+}
+
+<span class="kw">public class</span> <span class="cl">RaportRepository</span> {
+    <span class="kw">public void</span> <span class="mth">zapisz</span>(<span class="cl">Raport</span> r) { <span class="cm">/* tylko zapis do bazy */</span> }
+}
+
+<span class="kw">public class</span> <span class="cl">RaportMailer</span> {
+    <span class="kw">public void</span> <span class="mth">wyslij</span>(<span class="cl">Raport</span> r, <span class="cl">String</span> adres) { <span class="cm">/* email */</span> }
+}
+
+<span class="kw">public class</span> <span class="cl">RaportHtmlFormatter</span> {
+    <span class="kw">public</span> <span class="cl">String</span> <span class="mth">format</span>(<span class="cl">Raport</span> r) { <span class="cm">/* HTML */</span> }
+}
+<span class="cm">// Każda klasa zmienia się z dokładnie jednego powodu ✓</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- O -->
+  <div class="solid-card">
+    <div class="solid-header">
+      <div class="solid-letter" style="color:var(--blue)">O</div>
+      <div>
+        <div class="solid-name">Open/Closed Principle</div>
+        <div class="solid-sub">Zasada Otwarte / Zamknięte</div>
+      </div>
+    </div>
+    <div class="solid-body">
+      <p class="prose">Klasy powinny być <strong>otwarte na rozszerzanie</strong>, ale <strong>zamknięte na modyfikację</strong>. Nową funkcjonalność dodajemy przez nowe klasy, nie przez edycję istniejących.</p>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Open/Closed</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+        <pre><span class="kw">public interface</span> <span class="cl">Ksztalt</span> {
+    <span class="kw">double</span> <span class="mth">obliczPole</span>();
+}
+
+<span class="kw">public class</span> <span class="cl">Kolo</span> <span class="kw">implements</span> <span class="cl">Ksztalt</span> {
+    <span class="kw">private final double</span> promien;
+    <span class="ann">@Override</span>
+    <span class="kw">public double</span> <span class="mth">obliczPole</span>() { <span class="kw">return</span> Math.PI * promien * promien; }
+}
+
+<span class="kw">public class</span> <span class="cl">Prostokat</span> <span class="kw">implements</span> <span class="cl">Ksztalt</span> {
+    <span class="kw">private final double</span> szerokosc, wysokosc;
+    <span class="ann">@Override</span>
+    <span class="kw">public double</span> <span class="mth">obliczPole</span>() { <span class="kw">return</span> szerokosc * wysokosc; }
+}
+
+<span class="cm">// KalkulatorPola NIGDY nie zmienia się gdy dodajemy nowy kształt!</span>
+<span class="kw">public class</span> <span class="cl">KalkulatorPola</span> {
+    <span class="kw">public double</span> <span class="mth">sumaPol</span>(List&lt;Ksztalt&gt; ksztalty) {
+        <span class="kw">return</span> ksztalty.stream()
+            .mapToDouble(Ksztalt::obliczPole).sum();
+    }
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- L -->
+  <div class="solid-card">
+    <div class="solid-header">
+      <div class="solid-letter" style="color:var(--green)">L</div>
+      <div>
+        <div class="solid-name">Liskov Substitution Principle</div>
+        <div class="solid-sub">Zasada Podstawienia Liskov</div>
+      </div>
+    </div>
+    <div class="solid-body">
+      <p class="prose">Obiekty klasy podrzędnej powinny być <strong>wymienne z obiektami klasy bazowej</strong> bez naruszania poprawności programu. Klasa podrzędna może rozszerzać zachowanie, ale nie powinna go ograniczać.</p>
+      <div class="callout bad">
+        <div class="callout-icon">❌</div>
+        <div class="callout-body"><strong>Klasyczny błąd LSP — Kwadrat rozszerza Prostokąt:</strong> Kwadrat jest prostokątem matematycznie, ale nie w sensie OOP. Gdy ustawiamy szerokość Kwadratu, zmieniamy też wysokość — co łamie kontrakt Prostokąta.</div>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">LSP — poprawne</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+        <pre><span class="cm">// ✅ Rozdziel Ptaka i zdolność latania</span>
+<span class="kw">public abstract class</span> <span class="cl">Ptak</span> {
+    <span class="kw">public abstract void</span> <span class="mth">jedz</span>();
+    <span class="kw">public abstract void</span> <span class="mth">spij</span>();
+}
+
+<span class="kw">public interface</span> <span class="cl">Latajacy</span> {
+    <span class="kw">void</span> <span class="mth">lec</span>();
+}
+
+<span class="cm">// Wróbel lata</span>
+<span class="kw">public class</span> <span class="cl">Wrobel</span> <span class="kw">extends</span> <span class="cl">Ptak</span> <span class="kw">implements</span> <span class="cl">Latajacy</span> {
+    <span class="kw">public void</span> <span class="mth">jedz</span>() { }
+    <span class="kw">public void</span> <span class="mth">spij</span>() { }
+    <span class="kw">public void</span> <span class="mth">lec</span>() { System.out.println(<span class="str">"Wróbel leci"</span>); }
+}
+
+<span class="cm">// Pingwin NIE lata — nie implementuje Latajacy. LSP zachowane ✓</span>
+<span class="kw">public class</span> <span class="cl">Pingwin</span> <span class="kw">extends</span> <span class="cl">Ptak</span> {
+    <span class="kw">public void</span> <span class="mth">jedz</span>() { }
+    <span class="kw">public void</span> <span class="mth">spij</span>() { }
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- I -->
+  <div class="solid-card">
+    <div class="solid-header">
+      <div class="solid-letter" style="color:var(--yellow)">I</div>
+      <div>
+        <div class="solid-name">Interface Segregation Principle</div>
+        <div class="solid-sub">Zasada Segregacji Interfejsów</div>
+      </div>
+    </div>
+    <div class="solid-body">
+      <p class="prose">Klienci nie powinni być zmuszani do implementacji metod, których nie używają. <strong>Wiele małych, wyspecjalizowanych interfejsów</strong> jest lepszych niż jeden gruby interfejs.</p>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">ISP</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+        <pre><span class="cm">// ❌ Gruby interfejs — implementujący musi obsłużyć wszystko</span>
+<span class="kw">public interface</span> <span class="cl">UrzadzenieGrube</span> {
+    <span class="kw">void</span> <span class="mth">drukuj</span>();
+    <span class="kw">void</span> <span class="mth">skanuj</span>();
+    <span class="kw">void</span> <span class="mth">faksuj</span>();
+    <span class="kw">void</span> <span class="mth">kopiuj</span>();
+}
+
+<span class="cm">// ✅ Małe interfejsy</span>
+<span class="kw">public interface</span> <span class="cl">Drukarka</span>   { <span class="kw">void</span> <span class="mth">drukuj</span>(); }
+<span class="kw">public interface</span> <span class="cl">Skaner</span>     { <span class="kw">void</span> <span class="mth">skanuj</span>(); }
+<span class="kw">public interface</span> <span class="cl">Faks</span>       { <span class="kw">void</span> <span class="mth">faksuj</span>(); }
+
+<span class="cm">// Prosta drukarka — implementuje tylko to, co umie</span>
+<span class="kw">public class</span> <span class="cl">ProstaDrukarka</span> <span class="kw">implements</span> <span class="cl">Drukarka</span> {
+    <span class="ann">@Override</span>
+    <span class="kw">public void</span> <span class="mth">drukuj</span>() { System.out.println(<span class="str">"Drukuję..."</span>); }
+    <span class="cm">// nie musi implementować skanuj() ani faksuj()</span>
+}
+
+<span class="cm">// Urządzenie wielofunkcyjne — implementuje wiele</span>
+<span class="kw">public class</span> <span class="cl">WielofunkcyjneUrządzenie</span> <span class="kw">implements</span> <span class="cl">Drukarka</span>, <span class="cl">Skaner</span>, <span class="cl">Faks</span> {
+    <span class="kw">public void</span> <span class="mth">drukuj</span>() { }
+    <span class="kw">public void</span> <span class="mth">skanuj</span>() { }
+    <span class="kw">public void</span> <span class="mth">faksuj</span>() { }
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- D -->
+  <div class="solid-card">
+    <div class="solid-header">
+      <div class="solid-letter" style="color:var(--red)">D</div>
+      <div>
+        <div class="solid-name">Dependency Inversion Principle</div>
+        <div class="solid-sub">Zasada Odwrócenia Zależności</div>
+      </div>
+    </div>
+    <div class="solid-body">
+      <p class="prose">Moduły wysokopoziomowe nie powinny zależeć od niskopoziomowych — oboje powinny zależeć od <strong>abstrakcji</strong>. To fundament Dependency Injection stosowanego w Spring Framework.</p>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">DIP + Dependency Injection</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+        <pre><span class="cm">// Abstrakcja (interfejs)</span>
+<span class="kw">public interface</span> <span class="cl">NotyfikacjaSerwis</span> {
+    <span class="kw">void</span> <span class="mth">wyslij</span>(<span class="cl">String</span> wiadomosc);
+}
+
+<span class="cm">// Implementacje niskopoziomowe</span>
+<span class="kw">public class</span> <span class="cl">EmailSerwis</span> <span class="kw">implements</span> <span class="cl">NotyfikacjaSerwis</span> {
+    <span class="kw">public void</span> <span class="mth">wyslij</span>(<span class="cl">String</span> msg) { <span class="cm">/* SMTP */</span> }
+}
+<span class="kw">public class</span> <span class="cl">SmsSerwis</span> <span class="kw">implements</span> <span class="cl">NotyfikacjaSerwis</span> {
+    <span class="kw">public void</span> <span class="mth">wyslij</span>(<span class="cl">String</span> msg) { <span class="cm">/* SMS gateway */</span> }
+}
+
+<span class="cm">// Klasa wysokopoziomowa zależy od ABSTRAKCJI, nie impl.</span>
+<span class="kw">public class</span> <span class="cl">ZamowienieSerwis</span> {
+    <span class="kw">private final</span> <span class="cl">NotyfikacjaSerwis</span> notyfikacja;
+
+    <span class="cm">// Dependency Injection przez konstruktor — najlepsza praktyka</span>
+    <span class="kw">public</span> <span class="cl">ZamowienieSerwis</span>(<span class="cl">NotyfikacjaSerwis</span> notyfikacja) {
+        <span class="kw">this</span>.notyfikacja = notyfikacja;
+    }
+
+    <span class="kw">public void</span> <span class="mth">potwierdzZamowienie</span>(<span class="cl">String</span> nr) {
+        <span class="cm">// nie wie, jak działa notyfikacja — nie obchodzi go to!</span>
+        notyfikacja.<span class="mth">wyslij</span>(<span class="str">"Zamówienie "</span> + nr + <span class="str">" potwierdzone"</span>);
+    }
+}
+
+<span class="cm">// Podmiana implementacji bez zmiany ZamowienieSerwis</span>
+<span class="kw">var</span> serwis = <span class="kw">new</span> <span class="cl">ZamowienieSerwis</span>(<span class="kw">new</span> <span class="cl">SmsSerwis</span>()); <span class="cm">// łatwa zamiana!</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <nav class="chapter-nav">
+    <a href="02-oop.html"><div class="nav-dir">← Poprzedni</div><div class="nav-title">OOP</div></a>
+    <a href="04-wzorce.html" class="next"><div class="nav-dir">Następny →</div><div class="nav-title">Wzorce Projektowe</div></a>
+  </nav>
+</main>
+<footer class="site-footer">
+  Źródła: <a href="https://freecodecamp.org/news/introduction-to-solid-principles/" target="_blank">FreeCodeCamp SOLID</a> ·
+  <a href="https://howtodoinjava.com/best-practices/solid-principles/" target="_blank">HowToDoInJava</a>
+</footer>
+<script>
+function copyCode(btn){const pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(()=>{btn.textContent='Skopiowano!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Kopiuj';btn.classList.remove('ok')},2000)});}
+function tab(btn,id){const wrap=btn.closest('.tabs-wrap');wrap.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));wrap.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById(id).classList.add('active');}
+</script>
+</body>
+</html>

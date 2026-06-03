@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 — Spring Core | Java Mastery</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-logo">java<span>.mastery</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Strona główna</a>
+    <a href="08-zaawansowane.html">Zaawansowane</a>
+    <a href="09-maven-gradle.html">Maven/Gradle</a>
+    <a href="10-spring-core.html" class="active">Spring Core</a>
+    <a href="11-spring-boot.html">Spring Boot</a>
+    <a href="12-jpa.html">JPA</a>
+    <a href="13-security.html">Security</a>
+  </div>
+</nav>
+<div class="breadcrumb">
+  <a href="index.html">java.mastery</a><span class="sep">/</span>
+  <span class="current">10 — Spring Core</span>
+</div>
+<main class="page-wrap">
+  <header class="chapter-header">
+    <div class="chapter-num">ROZDZIAŁ 10</div>
+    <h1 class="chapter-title">Spring Core</h1>
+    <p class="chapter-desc">Fundament ekosystemu Spring — Inversion of Control, Dependency Injection i kontener IoC. Zrozumienie tych mechanizmów to klucz do całego Spring Framework.</p>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
+      <span class="badge purple">Spring 6</span>
+      <span class="badge">Poziom: Średniozaawansowany</span>
+    </div>
+  </header>
+
+  <h2 class="section-title">Inversion of Control (IoC)</h2>
+  <p class="prose">Tradycyjnie to <em>kod</em> tworzy swoje zależności. W IoC <strong>framework przejmuje kontrolę</strong> nad tworzeniem i wstrzykiwaniem zależności. Twój kod opisuje <em>czego potrzebuje</em>, a Spring to dostarcza.</p>
+
+  <div class="tabs-wrap">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="tab(this,'ioc-bad')">❌ Bez IoC</button>
+      <button class="tab-btn" onclick="tab(this,'ioc-good')">✅ Z Spring IoC</button>
+    </div>
+    <div id="ioc-bad" class="tab-panel active">
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span class="code-lang">Tradycyjne podejście</span>
+        <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+        <pre><span class="kw">public class</span> <span class="cl">ZamowienieSerwis</span> {
+    <span class="cm">// ❌ Klasa SAMA tworzy zależności</span>
+    <span class="kw">private</span> <span class="cl">EmailSerwis</span> email = <span class="kw">new</span> <span class="cl">EmailSerwis</span>();
+    <span class="kw">private</span> <span class="cl">PlatnoscSerwis</span> platnosc = <span class="kw">new</span> <span class="cl">PlatnoscSerwis</span>();
+
+    <span class="cm">// Problemy:</span>
+    <span class="cm">// - ścisłe powiązanie (tight coupling)</span>
+    <span class="cm">// - niemożliwe do przetestowania (nie można podmienić mockiem)</span>
+    <span class="cm">// - nie można zmienić implementacji bez edycji tej klasy</span>
+}</pre>
+      </div>
+    </div>
+    <div id="ioc-good" class="tab-panel">
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span class="code-lang">Spring IoC — kontener zarządza</span>
+        <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+        <pre><span class="ann">@Service</span>
+<span class="kw">public class</span> <span class="cl">ZamowienieSerwis</span> {
+    <span class="kw">private final</span> <span class="cl">NotyfikacjaSerwis</span> notyfikacja;
+    <span class="kw">private final</span> <span class="cl">PlatnoscSerwis</span> platnosc;
+
+    <span class="cm">// ✅ Spring WSTRZYKUJE zależności przez konstruktor</span>
+    <span class="kw">public</span> <span class="cl">ZamowienieSerwis</span>(
+            <span class="cl">NotyfikacjaSerwis</span> notyfikacja,
+            <span class="cl">PlatnoscSerwis</span> platnosc) {
+        <span class="kw">this</span>.notyfikacja = notyfikacja;
+        <span class="kw">this</span>.platnosc = platnosc;
+    }
+
+    <span class="kw">public void</span> <span class="mth">zloz</span>(<span class="cl">Zamowienie</span> z) {
+        platnosc.<span class="mth">przetworz</span>(z);
+        notyfikacja.<span class="mth">wyslij</span>(<span class="str">"Zamówienie złożone"</span>);
+    }
+}
+<span class="cm">// Spring sam znajdzie NotyfikacjaSerwis i PlatnoscSerwis</span>
+<span class="cm">// i przekaże je do konstruktora — nie musisz pisać new!</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Adnotacje — Definiowanie Beanów</h2>
+  <p class="prose">Bean to obiekt zarządzany przez kontener Spring. Adnotacje mówią Springowi, które klasy mają być beanami i jaką rolę pełnią.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Adnotacja</th><th>Warstwa</th><th>Znaczenie</th></tr></thead>
+      <tbody>
+        <tr><td><code>@Component</code></td><td>Dowolna</td><td>Generyczny bean — Spring zarządza tą klasą</td></tr>
+        <tr><td><code>@Service</code></td><td>Logika biznesowa</td><td>Jak @Component, semantycznie oznacza serwis</td></tr>
+        <tr><td><code>@Repository</code></td><td>Dostęp do danych</td><td>Jak @Component + obsługa wyjątków DB</td></tr>
+        <tr><td><code>@Controller</code></td><td>Warstwa web</td><td>Obsługuje żądania HTTP (MVC)</td></tr>
+        <tr><td><code>@RestController</code></td><td>Warstwa web</td><td>@Controller + @ResponseBody (JSON/XML)</td></tr>
+        <tr><td><code>@Configuration</code></td><td>Konfiguracja</td><td>Klasa definiuje beany przez metody @Bean</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="section-title">Dependency Injection — Trzy Sposoby</h2>
+
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">Constructor vs Field vs Setter Injection</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="cm">// ✅ 1. Constructor Injection — REKOMENDOWANY</span>
+<span class="ann">@Service</span>
+<span class="kw">public class</span> <span class="cl">ProduktSerwis</span> {
+    <span class="kw">private final</span> <span class="cl">ProduktRepo</span> repo;  <span class="cm">// final = niemutowalne po init</span>
+
+    <span class="kw">public</span> <span class="cl">ProduktSerwis</span>(<span class="cl">ProduktRepo</span> repo) {
+        <span class="kw">this</span>.repo = repo;
+    }
+    <span class="cm">// Zalety: niemutowalny, łatwy do testowania, wyraźne zależności</span>
+    <span class="cm">// Jeśli jest JEDNA zależność, @Autowired zbędny (Spring 4.3+)</span>
+}
+
+<span class="cm">// ⚠️ 2. Field Injection — popularne, ale nie zalecane</span>
+<span class="ann">@Service</span>
+<span class="kw">public class</span> <span class="cl">ProduktSerwis</span> {
+    <span class="ann">@Autowired</span>
+    <span class="kw">private</span> <span class="cl">ProduktRepo</span> repo;  <span class="cm">// nie jest final!</span>
+    <span class="cm">// Wada: nie da się przetestować bez kontenera Spring</span>
+}
+
+<span class="cm">// 3. Setter Injection — dla opcjonalnych zależności</span>
+<span class="ann">@Service</span>
+<span class="kw">public class</span> <span class="cl">ProduktSerwis</span> {
+    <span class="kw">private</span> <span class="cl">ProduktRepo</span> repo;
+
+    <span class="ann">@Autowired</span>
+    <span class="kw">public void</span> <span class="mth">setRepo</span>(<span class="cl">ProduktRepo</span> repo) { <span class="kw">this</span>.repo = repo; }
+}</pre>
+  </div>
+
+  <div class="callout good">
+    <div class="callout-icon">✅</div>
+    <div class="callout-body"><strong>Zawsze preferuj Constructor Injection.</strong> Zależności są widoczne, niemutowalne i klasa jest łatwa do testowania bez kontenera Spring — wystarczy <code>new MojaKlasa(mockRepo)</code>.</div>
+  </div>
+
+  <h2 class="section-title">Scope Beanów</h2>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">Bean Scopes</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="cm">// Singleton — domyślny: jedna instancja na cały kontener</span>
+<span class="ann">@Service</span>  <span class="cm">// = @Scope("singleton")</span>
+<span class="kw">public class</span> <span class="cl">KonfigSerwis</span> { }
+
+<span class="cm">// Prototype — nowa instancja przy każdym pobraniu z kontenera</span>
+<span class="ann">@Component</span>
+<span class="ann">@Scope</span>(<span class="str">"prototype"</span>)
+<span class="kw">public class</span> <span class="cl">RaportGenerator</span> { }
+
+<span class="cm">// Request — jedna instancja na żądanie HTTP (tylko web)</span>
+<span class="ann">@Component</span>
+<span class="ann">@Scope</span>(<span class="str">"request"</span>)
+<span class="kw">public class</span> <span class="cl">RequestContext</span> { }
+
+<span class="cm">// Session — jedna instancja na sesję HTTP</span>
+<span class="ann">@Component</span>
+<span class="ann">@Scope</span>(<span class="str">"session"</span>)
+<span class="kw">public class</span> <span class="cl">KoszykSesji</span> { }</pre>
+  </div>
+
+  <h2 class="section-title">Konfiguracja przez @Configuration i @Bean</h2>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">Konfiguracja Java</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="ann">@Configuration</span>
+<span class="kw">public class</span> <span class="cl">AppConfig</span> {
+
+    <span class="cm">// @Bean — Spring zarządza obiektem zwróconym przez tę metodę</span>
+    <span class="ann">@Bean</span>
+    <span class="kw">public</span> <span class="cl">ObjectMapper</span> <span class="mth">objectMapper</span>() {
+        <span class="kw">var</span> mapper = <span class="kw">new</span> <span class="cl">ObjectMapper</span>();
+        mapper.<span class="mth">configure</span>(<span class="cl">SerializationFeature</span>.<span class="ann">WRITE_DATES_AS_TIMESTAMPS</span>, <span class="kw">false</span>);
+        mapper.<span class="mth">registerModule</span>(<span class="kw">new</span> <span class="cl">JavaTimeModule</span>());
+        <span class="kw">return</span> mapper;
+    }
+
+    <span class="cm">// Zależności między @Bean — Spring wstrzykuje automatycznie</span>
+    <span class="ann">@Bean</span>
+    <span class="kw">public</span> <span class="cl">RestTemplate</span> <span class="mth">restTemplate</span>(<span class="cl">ObjectMapper</span> mapper) {
+        <span class="kw">var</span> rt = <span class="kw">new</span> <span class="cl">RestTemplate</span>();
+        <span class="cm">// konfiguruj z mapperem...</span>
+        <span class="kw">return</span> rt;
+    }
+}
+
+<span class="cm">// @Conditional — bean tworzony tylko gdy warunek spełniony</span>
+<span class="ann">@Bean</span>
+<span class="ann">@ConditionalOnProperty</span>(name = <span class="str">"feature.cache.enabled"</span>, havingValue = <span class="str">"true"</span>)
+<span class="kw">public</span> <span class="cl">CacheSerwis</span> <span class="mth">cacheSerwis</span>() {
+    <span class="kw">return new</span> <span class="cl">RedisCacheSerwis</span>();
+}</pre>
+  </div>
+
+  <h2 class="section-title">AOP — Aspect Oriented Programming</h2>
+  <p class="prose">AOP pozwala wydzielić przekrojowe zagadnienia (logging, transakcje, security) poza klasę biznesową. Spring AOP działa przez proxy — "opakowanie" wokół twojego beana.</p>
+
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">Aspect — logowanie czasu wykonania</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="ann">@Aspect</span>
+<span class="ann">@Component</span>
+<span class="kw">public class</span> <span class="cl">LoggingAspect</span> {
+
+    <span class="kw">private static final</span> <span class="cl">Logger</span> log = <span class="cl">LoggerFactory</span>.<span class="mth">getLogger</span>(<span class="cl">LoggingAspect</span>.<span class="kw">class</span>);
+
+    <span class="cm">// @Around — otacza wywołanie metody (przed i po)</span>
+    <span class="cm">// Pointcut: wszystkie metody w pakiecie service</span>
+    <span class="ann">@Around</span>(<span class="str">"execution(* com.example.service.*.*(..))"</span>)
+    <span class="kw">public</span> <span class="cl">Object</span> <span class="mth">logCzasWykonania</span>(<span class="cl">ProceedingJoinPoint</span> pjp) <span class="kw">throws</span> <span class="cl">Throwable</span> {
+        <span class="kw">long</span> start = <span class="cl">System</span>.<span class="mth">currentTimeMillis</span>();
+        <span class="kw">try</span> {
+            <span class="kw">return</span> pjp.<span class="mth">proceed</span>(); <span class="cm">// wywołaj oryginalną metodę</span>
+        } <span class="kw">finally</span> {
+            <span class="kw">long</span> czas = <span class="cl">System</span>.<span class="mth">currentTimeMillis</span>() - start;
+            log.<span class="mth">info</span>(<span class="str">"{}.{}() — {}ms"</span>,
+                pjp.<span class="mth">getTarget</span>().<span class="mth">getClass</span>().<span class="mth">getSimpleName</span>(),
+                pjp.<span class="mth">getSignature</span>().<span class="mth">getName</span>(),
+                czas);
+        }
+    }
+
+    <span class="cm">// @Before — przed wywołaniem metody</span>
+    <span class="ann">@Before</span>(<span class="str">"@annotation(com.example.RequiresAdmin)"</span>)
+    <span class="kw">public void</span> <span class="mth">sprawdzUprawnienia</span>(<span class="cl">JoinPoint</span> jp) {
+        <span class="cm">// sprawdź czy użytkownik ma rolę ADMIN</span>
+    }
+}</pre>
+  </div>
+
+  <nav class="chapter-nav">
+    <a href="09-maven-gradle.html"><div class="nav-dir">← Poprzedni</div><div class="nav-title">Maven & Gradle</div></a>
+    <a href="11-spring-boot.html" class="next"><div class="nav-dir">Następny →</div><div class="nav-title">Spring Boot</div></a>
+  </nav>
+</main>
+<footer class="site-footer">
+  Źródła: <a href="https://docs.spring.io/spring-framework/reference/" target="_blank">Spring Framework Docs</a> ·
+  <a href="https://baeldung.com/spring-tutorial" target="_blank">Baeldung Spring</a>
+</footer>
+<script>
+function copyCode(btn){const pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(()=>{btn.textContent='Skopiowano!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Kopiuj';btn.classList.remove('ok')},2000)});}
+function tab(btn,id){const wrap=btn.closest('.tabs-wrap');wrap.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));wrap.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById(id).classList.add('active');}
+</script>
+</body>
+</html>

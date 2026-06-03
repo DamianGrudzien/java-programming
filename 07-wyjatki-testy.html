@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 — Wyjątki & Testy | Java Mastery</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-logo">java<span>.mastery</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Strona główna</a><a href="01-podstawy.html">Podstawy</a><a href="02-oop.html">OOP</a><a href="03-solid.html">SOLID</a><a href="04-wzorce.html">Wzorce</a><a href="05-collections.html">Kolekcje</a><a href="06-streams.html">Streams</a><a href="07-wyjatki-testy.html" class="active">Wyjątki & Testy</a><a href="08-zaawansowane.html">Zaawansowane</a>
+  </div>
+</nav>
+<div class="breadcrumb"><a href="index.html">java.mastery</a><span class="sep">/</span><span class="current">07 — Wyjątki & Testy</span></div>
+<main class="page-wrap">
+  <header class="chapter-header">
+    <div class="chapter-num">ROZDZIAŁ 07</div>
+    <h1 class="chapter-title">Wyjątki & Testy</h1>
+    <p class="chapter-desc">Solidna obsługa błędów i automatyczne testy jednostkowe to podstawa profesjonalnego kodu. JUnit 5 + Mockito to standard w Javie.</p>
+  </header>
+
+  <h2 class="section-title">Hierarchia Wyjątków</h2>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Hierarchia</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="cl">Throwable</span>
+├── <span class="cl">Error</span>                    <span class="cm">// Błędy JVM — nigdy nie łap!</span>
+│   ├── OutOfMemoryError
+│   └── StackOverflowError
+└── <span class="cl">Exception</span>
+    ├── <span class="cm">Checked Exceptions</span>      <span class="cm">// Kompilator wymaga obsługi</span>
+    │   ├── IOException
+    │   ├── SQLException
+    │   └── ParseException
+    └── <span class="cl">RuntimeException</span>        <span class="cm">// Unchecked — opcjonalna obsługa</span>
+        ├── NullPointerException
+        ├── IllegalArgumentException
+        ├── IllegalStateException
+        └── IndexOutOfBoundsException</pre>
+  </div>
+  <div class="callout tip">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body"><strong>Checked vs Unchecked:</strong> Checked — gdy klient może sensownie obsłużyć błąd (np. brak pliku). Unchecked (RuntimeException) — błędy programisty (null, zły indeks). W nowoczesnym Javie preferuje się unchecked dla logiki domenowej.</div>
+  </div>
+
+  <h2 class="section-title">Dobre Praktyki Obsługi Wyjątków</h2>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Wyjątki — co robić, czego nie robić</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="cm">// ❌ ANTY-WZORZEC 1 — pusty catch (błąd znika!)</span>
+<span class="kw">try</span> { operacja(); } <span class="kw">catch</span> (<span class="cl">Exception</span> e) { }
+
+<span class="cm">// ❌ ANTY-WZORZEC 2 — łapanie zbyt szerokiego typu</span>
+<span class="kw">catch</span> (<span class="cl">Exception</span> e) { e.printStackTrace(); } <span class="cm">// łapiemy za dużo</span>
+
+<span class="cm">// ✅ try-with-resources — automatyczne zamknięcie zasobu (Java 7+)</span>
+<span class="kw">try</span> (<span class="kw">var</span> reader = <span class="kw">new</span> <span class="cl">BufferedReader</span>(<span class="kw">new</span> <span class="cl">FileReader</span>(plik));
+     <span class="kw">var</span> conn   = <span class="mth">dataSource</span>.<span class="mth">getConnection</span>()) {
+
+    <span class="cl">String</span> linia = reader.<span class="mth">readLine</span>();
+    <span class="cm">// close() na reader i conn wywołane automatycznie!</span>
+
+} <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
+    log.<span class="mth">error</span>(<span class="str">"Błąd odczytu pliku: {}"</span>, plik.<span class="mth">getName</span>(), e);
+    <span class="kw">throw new</span> <span class="cl">PlikNieOdczytalnyException</span>(<span class="str">"Nie można odczytać: "</span> + plik, e);
+}
+
+<span class="cm">// ✅ Multi-catch — kilka typów w jednym catch</span>
+<span class="kw">try</span> {
+    <span class="mth">parsujIZapisz</span>(dane);
+} <span class="kw">catch</span> (<span class="cl">ParseException</span> | <span class="cl">IOException</span> e) {
+    <span class="kw">throw new</span> <span class="cl">PrzetwarzanieException</span>(<span class="str">"Błąd przetwarzania danych"</span>, e);
+}
+
+<span class="cm">// ✅ Własny wyjątek z kontekstem</span>
+<span class="kw">public class</span> <span class="cl">UzytkownikNieIstnieje</span> <span class="kw">extends</span> <span class="cl">RuntimeException</span> {
+    <span class="kw">private final</span> <span class="kw">long</span> userId;
+
+    <span class="kw">public</span> <span class="cl">UzytkownikNieIstnieje</span>(<span class="kw">long</span> id) {
+        <span class="kw">super</span>(<span class="str">"Użytkownik id="</span> + id + <span class="str">" nie istnieje"</span>);
+        <span class="kw">this</span>.userId = id;
+    }
+    <span class="kw">public long</span> <span class="mth">getUserId</span>() { <span class="kw">return</span> userId; }
+}</pre>
+  </div>
+
+  <h2 class="section-title">Testy Jednostkowe — JUnit 5</h2>
+  <p class="prose">Testy jednostkowe weryfikują działanie izolowanych fragmentów kodu (klasa, metoda). Standard w Javie: <strong>JUnit 5</strong> + <strong>Mockito</strong> do mockowania zależności.</p>
+  <div class="callout tip">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body"><strong>Wzorzec AAA:</strong> Każdy test ma trzy sekcje — <strong>Arrange</strong> (przygotuj dane), <strong>Act</strong> (wywołaj metodę), <strong>Assert</strong> (sprawdź wynik). Jeden test = jedna weryfikacja.</div>
+  </div>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">JUnit 5 + Mockito</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="ann">@ExtendWith</span>(MockitoExtension.class)
+<span class="kw">class</span> <span class="cl">ZamowienieSerwisTest</span> {
+
+    <span class="ann">@Mock</span>
+    <span class="kw">private</span> <span class="cl">UzytkownikRepo</span> uzytkownikRepo;   <span class="cm">// automatyczny mock</span>
+
+    <span class="ann">@Mock</span>
+    <span class="kw">private</span> <span class="cl">PlatnoscSerwis</span> platnoscSerwis;
+
+    <span class="ann">@InjectMocks</span>
+    <span class="kw">private</span> <span class="cl">ZamowienieSerwis</span> sut;            <span class="cm">// System Under Test</span>
+
+    <span class="ann">@Test</span>
+    <span class="ann">@DisplayName</span>(<span class="str">"Powinien złożyć zamówienie gdy użytkownik istnieje"</span>)
+    <span class="kw">void</span> <span class="mth">powinienZlozycZamowienie</span>() {
+        <span class="cm">// Arrange</span>
+        <span class="kw">var</span> uzytkownik = <span class="kw">new</span> <span class="cl">Uzytkownik</span>(<span class="num">1L</span>, <span class="str">"Anna"</span>);
+        <span class="mth">when</span>(uzytkownikRepo.<span class="mth">znajdz</span>(<span class="num">1L</span>))
+            .<span class="mth">thenReturn</span>(<span class="cl">Optional</span>.<span class="mth">of</span>(uzytkownik));
+        <span class="mth">when</span>(platnoscSerwis.<span class="mth">przetworz</span>(<span class="mth">anyDouble</span>())).thenReturn(<span class="kw">true</span>);
+
+        <span class="cm">// Act</span>
+        <span class="cl">Zamowienie</span> wynik = sut.<span class="mth">zloz</span>(<span class="num">1L</span>, <span class="num">299.99</span>);
+
+        <span class="cm">// Assert</span>
+        <span class="mth">assertNotNull</span>(wynik);
+        <span class="mth">assertEquals</span>(<span class="cl">Status</span>.<span class="ann">POTWIERDZONE</span>, wynik.<span class="mth">getStatus</span>());
+        <span class="mth">verify</span>(platnoscSerwis).<span class="mth">przetworz</span>(<span class="num">299.99</span>); <span class="cm">// weryfikuj wywołanie</span>
+        <span class="mth">verifyNoMoreInteractions</span>(platnoscSerwis);
+    }
+
+    <span class="ann">@Test</span>
+    <span class="ann">@DisplayName</span>(<span class="str">"Powinien rzucić wyjątek gdy brak użytkownika"</span>)
+    <span class="kw">void</span> <span class="mth">powinienRzucicWyjatekGdyBrakUzytkownika</span>() {
+        <span class="cm">// Arrange</span>
+        <span class="mth">when</span>(uzytkownikRepo.<span class="mth">znajdz</span>(<span class="num">99L</span>)).thenReturn(<span class="cl">Optional</span>.<span class="mth">empty</span>());
+
+        <span class="cm">// Act + Assert — jeden wiersz!</span>
+        <span class="mth">assertThrows</span>(<span class="cl">UzytkownikNieIstnieje</span>.<span class="kw">class</span>, () -> sut.<span class="mth">zloz</span>(<span class="num">99L</span>, <span class="num">50.0</span>));
+    }
+
+    <span class="cm">// Parameterized Test — jeden test, wiele wartości</span>
+    <span class="ann">@ParameterizedTest</span>
+    <span class="ann">@ValueSource</span>(doubles = {<span class="num">-1</span>, <span class="num">0</span>, <span class="num">-999</span>})
+    <span class="ann">@DisplayName</span>(<span class="str">"Powinien odrzucić nieprawidłową kwotę"</span>)
+    <span class="kw">void</span> <span class="mth">powinienOdrzucicNieprawidlowaKwote</span>(<span class="kw">double</span> kwota) {
+        <span class="mth">assertThrows</span>(<span class="cl">IllegalArgumentException</span>.<span class="kw">class</span>,
+            () -> sut.<span class="mth">zloz</span>(<span class="num">1L</span>, kwota));
+    }
+}</pre>
+  </div>
+
+  <h2 class="section-title">Zasady FIRST dla Testów</h2>
+  <div class="cards">
+    <div class="card"><div class="card-icon">⚡</div><div class="card-title">Fast — Szybkie</div><div class="card-body">Testy muszą działać szybko. Setki testów powinny kończyć się w sekundy. Powolne testy są pomijane.</div></div>
+    <div class="card"><div class="card-icon">🔒</div><div class="card-title">Independent — Niezależne</div><div class="card-body">Kolejność uruchomienia nie powinna mieć znaczenia. Każdy test zakłada czysty stan.</div></div>
+    <div class="card"><div class="card-icon">🔄</div><div class="card-title">Repeatable — Powtarzalne</div><div class="card-body">Ten sam wynik niezależnie od środowiska. Żadnych zależności od czasu, sieci, danych zewnętrznych.</div></div>
+    <div class="card"><div class="card-icon">✅</div><div class="card-title">Self-validating</div><div class="card-body">Test sam sprawdza wynik. Żadnych manualnych inspekcji — pass lub fail, nic pomiędzy.</div></div>
+    <div class="card"><div class="card-icon">⏰</div><div class="card-title">Timely — Terminowe</div><div class="card-body">Pisane razem z kodem (TDD) lub zaraz po. Testy pisane po miesiącu tracą wartość.</div></div>
+  </div>
+
+  <nav class="chapter-nav">
+    <a href="06-streams.html"><div class="nav-dir">← Poprzedni</div><div class="nav-title">Streams & Lambdy</div></a>
+    <a href="08-zaawansowane.html" class="next"><div class="nav-dir">Następny →</div><div class="nav-title">Zaawansowane</div></a>
+  </nav>
+</main>
+<footer class="site-footer">Źródła: <a href="https://junit.org/junit5/docs/current/user-guide/" target="_blank">JUnit 5 User Guide</a> · <a href="https://site.mockito.org/" target="_blank">Mockito Docs</a></footer>
+<script>function copyCode(btn){const pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(()=>{btn.textContent='Skopiowano!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Kopiuj';btn.classList.remove('ok')},2000)});}</script>
+</body>
+</html>

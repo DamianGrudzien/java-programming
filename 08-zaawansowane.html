@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 — Zaawansowane | Java Mastery</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-logo">java<span>.mastery</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Strona główna</a><a href="01-podstawy.html">Podstawy</a><a href="02-oop.html">OOP</a><a href="03-solid.html">SOLID</a><a href="04-wzorce.html">Wzorce</a><a href="05-collections.html">Kolekcje</a><a href="06-streams.html">Streams</a><a href="07-wyjatki-testy.html">Wyjątki & Testy</a><a href="08-zaawansowane.html" class="active">Zaawansowane</a>
+  </div>
+</nav>
+<div class="breadcrumb"><a href="index.html">java.mastery</a><span class="sep">/</span><span class="current">08 — Zaawansowane</span></div>
+<main class="page-wrap">
+  <header class="chapter-header">
+    <div class="chapter-num">ROZDZIAŁ 08</div>
+    <h1 class="chapter-title">Zaawansowane —<br>JVM & Concurrency</h1>
+    <p class="chapter-desc">Jak działa maszyna wirtualna Javy, Garbage Collection, wielowątkowość, Virtual Threads (Java 21) i zasady Clean Code dla profesjonalnego kodu.</p>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
+      <span class="badge purple">Java 21</span>
+      <span class="badge red">Poziom: Zaawansowany</span>
+    </div>
+  </header>
+
+  <h2 class="section-title">Jak działa JVM</h2>
+  <p class="prose">Java Virtual Machine to silnik wykonujący kod. Kompilator javac produkuje <strong>bytecode</strong> (.class), który JVM tłumaczy na instrukcje natywne przez <strong>JIT Compiler</strong>.</p>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Pamięć JVM</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="cm">Heap (sterta) — obiekty i tablice
+├── Young Generation — nowe obiekty, szybkie GC (Minor GC)
+│   ├── Eden Space       — nowo tworzone
+│   ├── Survivor S0      }
+│   └── Survivor S1      } — przeżyłe Eden
+└── Old Generation (Tenured) — długożyjące, Major GC (wolniejszy)
+
+Metaspace (poza heap, Java 8+) — metadane klas
+Stack — ramki metod, zmienne lokalne, referencje (per thread)
+Program Counter — adres bieżącej instrukcji (per thread)</span>
+
+<span class="cm">// Flagi JVM — dostrajanie GC</span>
+<span class="cm">// G1GC — domyślny Java 9+, balans latency/throughput</span>
+java -XX:+UseG1GC -Xms512m -Xmx4g MyApp
+
+<span class="cm">// ZGC — ultra-niskie latency &lt;1ms (Java 15+)</span>
+java -XX:+UseZGC MyApp
+
+<span class="cm">// Diagnostyka</span>
+java -Xlog:gc* -XX:+PrintGCDetails MyApp</pre>
+  </div>
+
+  <h2 class="section-title">Wielowątkowość & Thread Safety</h2>
+
+  <div class="accordion open">
+    <div class="acc-header" onclick="acc(this)">
+      <div class="acc-title">🧵 Podstawy wielowątkowości</div>
+      <div class="acc-arrow">▼</div>
+    </div>
+    <div class="acc-body">
+      <div class="acc-content">
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Thread & ExecutorService</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+          <pre><span class="cm">// 1. Thread — prymityw (unikaj bezpośrednio)</span>
+<span class="cl">Thread</span> t = <span class="kw">new</span> <span class="cl">Thread</span>(() -> System.out.println(<span class="str">"Hello!"</span>));
+t.<span class="mth">start</span>();
+
+<span class="cm">// 2. ExecutorService — zarządzany pul wątków</span>
+<span class="kw">try</span> (<span class="kw">var</span> executor = <span class="cl">Executors</span>.<span class="mth">newFixedThreadPool</span>(<span class="num">4</span>)) {
+    <span class="cl">Future</span>&lt;<span class="cl">String</span>&gt; future = executor.<span class="mth">submit</span>(() -> <span class="mth">pobierzDane</span>());
+    <span class="cl">String</span> wynik = future.<span class="mth">get</span>(); <span class="cm">// blokuje wątek!</span>
+}
+
+<span class="cm">// 3. CompletableFuture — asynchroniczne, bez blokowania</span>
+<span class="cl">CompletableFuture</span>.<span class="mth">supplyAsync</span>(() -> <span class="mth">pobierzDane</span>())
+    .<span class="mth">thenApply</span>(<span class="cl">String</span>::toUpperCase)
+    .<span class="mth">thenAccept</span>(System.out::println)
+    .<span class="mth">exceptionally</span>(e -> { log.error(<span class="str">"Błąd"</span>, e); <span class="kw">return null</span>; });</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion">
+    <div class="acc-header" onclick="acc(this)">
+      <div class="acc-title">🔒 Synchronizacja i thread safety</div>
+      <div class="acc-arrow">▼</div>
+    </div>
+    <div class="acc-body">
+      <div class="acc-content">
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Thread Safety patterns</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+          <pre><span class="cm">// 1. Immutability — najlepsza gwarancja thread safety</span>
+<span class="kw">public final class</span> <span class="cl">ImmutableConfig</span> {
+    <span class="kw">private final</span> <span class="cl">String</span> host;   <span class="cm">// final = niezmienne po konstruktorze</span>
+    <span class="kw">private final int</span> port;
+    <span class="kw">public</span> <span class="cl">ImmutableConfig</span>(<span class="cl">String</span> h, <span class="kw">int</span> p) { host=h; port=p; }
+    <span class="kw">public</span> <span class="cl">String</span> <span class="mth">host</span>() { <span class="kw">return</span> host; }
+    <span class="kw">public int</span> <span class="mth">port</span>() { <span class="kw">return</span> port; }
+}
+
+<span class="cm">// 2. AtomicInteger — lockless counter</span>
+<span class="kw">private final</span> <span class="cl">AtomicInteger</span> licznik = <span class="kw">new</span> <span class="cl">AtomicInteger</span>(<span class="num">0</span>);
+licznik.<span class="mth">incrementAndGet</span>(); <span class="cm">// atomowe!</span>
+licznik.<span class="mth">compareAndSet</span>(<span class="num">5</span>, <span class="num">10</span>); <span class="cm">// CAS — Compare And Swap</span>
+
+<span class="cm">// 3. synchronized — prosta synchronizacja (może powodować deadlock)</span>
+<span class="kw">public synchronized void</span> <span class="mth">dodaj</span>(<span class="cl">String</span> el) { lista.<span class="mth">add</span>(el); }
+
+<span class="cm">// 4. ReentrantLock — więcej kontroli</span>
+<span class="kw">private final</span> <span class="cl">ReentrantLock</span> lock = <span class="kw">new</span> <span class="cl">ReentrantLock</span>();
+<span class="kw">public void</span> <span class="mth">operacja</span>() {
+    lock.<span class="mth">lock</span>();
+    <span class="kw">try</span> { <span class="cm">/* sekcja krytyczna */</span> }
+    <span class="kw">finally</span> { lock.<span class="mth">unlock</span>(); } <span class="cm">// zawsze w finally!</span>
+}
+
+<span class="cm">// 5. volatile — widoczność między wątkami (nie atomowość!)</span>
+<span class="kw">private volatile boolean</span> dziala = <span class="kw">true</span>; <span class="cm">// wątek zawsze czyta z pamięci</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion">
+    <div class="acc-header" onclick="acc(this)">
+      <div class="acc-title">🚀 Virtual Threads — Java 21 (Project Loom)</div>
+      <div class="acc-arrow">▼</div>
+    </div>
+    <div class="acc-body">
+      <div class="acc-content">
+        <p style="color:var(--text2);font-size:.88rem;line-height:1.7;margin-bottom:1rem">Virtual Threads to lekkie wątki zarządzane przez JVM (nie OS). Tradycyjny wątek OS kosztuje ~1MB RAM. Virtual Thread — kilka KB. Możesz tworzyć ich miliony.</p>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Virtual Threads — Java 21</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+          <pre><span class="cm">// Stworzenie Virtual Thread</span>
+<span class="cl">Thread</span> vt = <span class="cl">Thread</span>.<span class="mth">ofVirtual</span>().<span class="mth">start</span>(() -> <span class="mth">obsluzRequest</span>());
+
+<span class="cm">// ExecutorService z Virtual Threads — jeden thread per task!</span>
+<span class="kw">try</span> (<span class="kw">var</span> executor = <span class="cl">Executors</span>.<span class="mth">newVirtualThreadPerTaskExecutor</span>()) {
+    <span class="cm">// Każde zadanie = osobny virtual thread. Bez limit!</span>
+    <span class="cl">IntStream</span>.<span class="mth">range</span>(<span class="num">0</span>, <span class="num">100_000</span>)
+        .<span class="mth">forEach</span>(i -> executor.<span class="mth">submit</span>(() -> <span class="mth">obsluzRequest</span>(i)));
+}
+
+<span class="cm">// ✅ Idealny do I/O-bound tasks (HTTP, DB, pliki)</span>
+<span class="cm">// Gdy virtual thread czeka na I/O, JVM "parkuje" go</span>
+<span class="cm">// i na tym samym OS thread obsługuje inny virtual thread.</span>
+<span class="cm">// ❌ Nie dla CPU-bound tasks — tu lepszy ForkJoinPool</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Clean Code — Zasady Czystego Kodu</h2>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Clean Code — Robert C. Martin</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="cm">// ❌ Złe nazewnictwo</span>
+<span class="kw">int</span> d;           <span class="cm">// co to?</span>
+<span class="kw">void</span> <span class="mth">proc</span>() {}  <span class="cm">// jakie przetwarzanie?</span>
+<span class="kw">boolean</span> <span class="mth">f</span>(<span class="cl">User</span> u) {} <span class="cm">// jaka flaga?</span>
+
+<span class="cm">// ✅ Kod jako dokumentacja</span>
+<span class="kw">int</span> wiekUzytkownikaWLatach;
+<span class="kw">void</span> <span class="mth">obliczPodatekDochodowy</span>() {}
+<span class="kw">boolean</span> <span class="mth">czyKlientMaAktywnaSubskrypcje</span>(<span class="cl">User</span> klient) {}
+
+<span class="cm">// ❌ Magiczne liczby</span>
+<span class="kw">if</span> (pracownik.<span class="mth">getWiek</span>() > <span class="num">65</span>) { <span class="cm">// co to 65?</span> }
+
+<span class="cm">// ✅ Nazwane stałe</span>
+<span class="kw">private static final int</span> WIEK_EMERYTALNY = <span class="num">65</span>;
+<span class="kw">if</span> (pracownik.<span class="mth">getWiek</span>() > WIEK_EMERYTALNY) { }
+
+<span class="cm">// ❌ Głęboka zagnieżdżoność (Pyramid of Doom)</span>
+<span class="kw">if</span> (user != <span class="kw">null</span>) {
+    <span class="kw">if</span> (user.<span class="mth">isActive</span>()) {
+        <span class="kw">if</span> (user.<span class="mth">hasPermission</span>(<span class="str">"ADMIN"</span>)) {
+            <span class="mth">doSomething</span>();
+        }
+    }
+}
+
+<span class="cm">// ✅ Guard Clauses — Early Return</span>
+<span class="kw">if</span> (user == <span class="kw">null</span>) <span class="kw">return</span>;
+<span class="kw">if</span> (!user.<span class="mth">isActive</span>()) <span class="kw">return</span>;
+<span class="kw">if</span> (!user.<span class="mth">hasPermission</span>(<span class="str">"ADMIN"</span>)) <span class="kw">return</span>;
+<span class="mth">doSomething</span>(); <span class="cm">// płasko i czytelnie!</span>
+
+<span class="cm">// ✅ Małe metody — jedna metoda = jedno zadanie</span>
+<span class="cm">// Zasada: metoda powinna zmieścić się na ekranie (max ~20 linii)</span></pre>
+  </div>
+
+  <h2 class="section-title">Najczęstsze Anty-wzorce w Javie</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">🚫</div>
+      <div class="card-title">String concatenation w pętli</div>
+      <div class="card-body">Każdy <code>+=</code> tworzy nowy String. W pętli z 1000 iteracji = 1000 obiektów. Używaj <code>StringBuilder</code> lub <code>String.join()</code>.</div>
+      <div class="card-tag">Wydajność</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🚫</div>
+      <div class="card-title">NullPointerException</div>
+      <div class="card-body">Nie zwracaj null z metod — użyj <code>Optional</code>. Nie porównuj Stringów przez <code>==</code>. Używaj <code>Objects.requireNonNull()</code> na wejściach.</div>
+      <div class="card-tag">Bezpieczeństwo</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🚫</div>
+      <div class="card-title">Brak equals/hashCode</div>
+      <div class="card-body">Klasy używane w <code>HashMap</code> / <code>HashSet</code> MUSZĄ poprawnie implementować <code>equals()</code> i <code>hashCode()</code>. Używaj <code>@Override</code>.</div>
+      <div class="card-tag">Poprawność</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🚫</div>
+      <div class="card-title">Mutable statics</div>
+      <div class="card-body">Mutable pola statyczne są współdzielone między wątkami bez synchronizacji. Preferuj niezmienne stałe lub użyj <code>ThreadLocal</code>.</div>
+      <div class="card-tag">Wielowątkowość</div>
+    </div>
+  </div>
+
+  <div class="callout good">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-body"><strong>Gratulacje!</strong> Przeszedłeś przez wszystkie 8 rozdziałów. Wróć do strony głównej i powtórz tematy, które wymagają utrwalenia. Nauka Javy to maraton, nie sprint!</div>
+  </div>
+
+  <nav class="chapter-nav">
+    <a href="07-wyjatki-testy.html"><div class="nav-dir">← Poprzedni</div><div class="nav-title">Wyjątki & Testy</div></a>
+    <a href="index.html" class="next"><div class="nav-dir">← Koniec</div><div class="nav-title">Strona główna</div></a>
+  </nav>
+</main>
+<footer class="site-footer">Źródła: <a href="https://docs.oracle.com/en/java/javase/21/docs/api/" target="_blank">Oracle Java 21 API</a> · <a href="https://openjdk.org/projects/loom/" target="_blank">Project Loom</a></footer>
+<script>
+function copyCode(btn){const pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(()=>{btn.textContent='Skopiowano!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Kopiuj';btn.classList.remove('ok')},2000)});}
+function acc(header){header.parentElement.classList.toggle('open');}
+</script>
+</body>
+</html>

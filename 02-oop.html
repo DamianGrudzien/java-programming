@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 — OOP | Java Mastery</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-logo">java<span>.mastery</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Strona główna</a>
+    <a href="01-podstawy.html">Podstawy</a>
+    <a href="02-oop.html" class="active">OOP</a>
+    <a href="03-solid.html">SOLID</a>
+    <a href="04-wzorce.html">Wzorce</a>
+    <a href="05-collections.html">Kolekcje</a>
+    <a href="06-streams.html">Streams</a>
+    <a href="07-wyjatki-testy.html">Wyjątki & Testy</a>
+    <a href="08-zaawansowane.html">Zaawansowane</a>
+  </div>
+</nav>
+<div class="breadcrumb">
+  <a href="index.html">java.mastery</a><span class="sep">/</span>
+  <span class="current">02 — OOP</span>
+</div>
+
+<main class="page-wrap">
+  <header class="chapter-header">
+    <div class="chapter-num">ROZDZIAŁ 02</div>
+    <h1 class="chapter-title">Programowanie Obiektowe</h1>
+    <p class="chapter-desc">Klasy, obiekty, cztery filary OOP — enkapsulacja, dziedziczenie, polimorfizm, abstrakcja. Interfejsy i kiedy je stosować zamiast dziedziczenia.</p>
+  </header>
+
+  <h2 class="section-title">Klasa i Obiekt</h2>
+  <p class="prose">Klasa to <strong>szablon</strong> (blueprint). Obiekt to <strong>instancja</strong> klasy — konkretna realizacja szablonu w pamięci. Jedna klasa może mieć nieskończenie wiele obiektów.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <span class="code-lang">Konto.java</span>
+      <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button>
+    </div>
+    <pre><span class="kw">public class</span> <span class="cl">Konto</span> {
+
+    <span class="cm">// Pola (fields) — stan obiektu</span>
+    <span class="kw">private final</span> <span class="cl">String</span> numer;     <span class="cm">// final = niemutowalne</span>
+    <span class="kw">private</span> <span class="kw">double</span> saldo;
+
+    <span class="cm">// Konstruktor — wywołany przy new Konto(...)</span>
+    <span class="kw">public</span> <span class="cl">Konto</span>(<span class="cl">String</span> numer, <span class="kw">double</span> saldobPoczatkowe) {
+        <span class="kw">this</span>.numer = numer;
+        <span class="kw">this</span>.saldo = saldobPoczatkowe;
+    }
+
+    <span class="cm">// Metody (methods) — zachowanie obiektu</span>
+    <span class="kw">public void</span> <span class="mth">wplac</span>(<span class="kw">double</span> kwota) {
+        <span class="kw">if</span> (kwota &lt;= <span class="num">0</span>) <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Kwota > 0"</span>);
+        saldo += kwota;
+    }
+
+    <span class="kw">public void</span> <span class="mth">wyplac</span>(<span class="kw">double</span> kwota) {
+        <span class="kw">if</span> (kwota &gt; saldo) <span class="kw">throw new</span> <span class="cl">IllegalStateException</span>(<span class="str">"Brak środków"</span>);
+        saldo -= kwota;
+    }
+
+    <span class="cm">// Getter — dostęp do prywatnego pola</span>
+    <span class="kw">public double</span> <span class="mth">getSaldo</span>() { <span class="kw">return</span> saldo; }
+    <span class="kw">public</span> <span class="cl">String</span> <span class="mth">getNumer</span>()  { <span class="kw">return</span> numer; }
+}
+
+<span class="cm">// Tworzenie obiektów</span>
+<span class="cl">Konto</span> k1 = <span class="kw">new</span> <span class="cl">Konto</span>(<span class="str">"PL001"</span>, <span class="num">1000.0</span>);
+<span class="cl">Konto</span> k2 = <span class="kw">new</span> <span class="cl">Konto</span>(<span class="str">"PL002"</span>, <span class="num">500.0</span>);
+k1.<span class="mth">wplac</span>(<span class="num">200.0</span>);
+System.out.<span class="mth">println</span>(k1.<span class="mth">getSaldo</span>()); <span class="cm">// 1200.0</span></pre>
+  </div>
+
+  <h2 class="section-title">Enkapsulacja</h2>
+  <p class="prose">Ukrywanie wewnętrznego stanu obiektu i udostępnianie go tylko przez kontrolowany interfejs (metody). Zapobiega niespójności danych.</p>
+
+  <div class="callout tip">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body"><strong>Zasada minimum uprawnień</strong> — pola zawsze <code>private</code>. Modyfikatory dostępu: <code>private</code> (tylko klasa) → <code>package-private</code> (pakiet) → <code>protected</code> (pakiet + podklasy) → <code>public</code> (wszędzie).</div>
+  </div>
+
+  <h2 class="section-title">Dziedziczenie</h2>
+  <p class="prose">Pozwala klasie podrzędnej przejąć pola i metody klasy bazowej (<code>extends</code>). Java obsługuje tylko <strong>pojedyncze dziedziczenie</strong> klas — klasa może rozszerzać tylko jedną klasę.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <span class="code-lang">Dziedziczenie</span>
+      <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button>
+    </div>
+    <pre><span class="kw">public abstract class</span> <span class="cl">Pojazd</span> {
+    <span class="kw">protected</span> <span class="cl">String</span> marka;
+    <span class="kw">protected int</span> rok;
+
+    <span class="kw">public</span> <span class="cl">Pojazd</span>(<span class="cl">String</span> marka, <span class="kw">int</span> rok) {
+        <span class="kw">this</span>.marka = marka;
+        <span class="kw">this</span>.rok = rok;
+    }
+
+    <span class="cm">// Metoda abstrakcyjna — podklasy MUSZĄ ją zaimplementować</span>
+    <span class="kw">public abstract</span> <span class="cl">String</span> <span class="mth">rodzajNapedu</span>();
+
+    <span class="cm">// Metoda konkretna — podklasy mogą nadpisać</span>
+    <span class="kw">public</span> <span class="cl">String</span> <span class="mth">info</span>() {
+        <span class="kw">return</span> marka + <span class="str">" ("</span> + rok + <span class="str">") — "</span> + <span class="mth">rodzajNapedu</span>();
+    }
+}
+
+<span class="kw">public class</span> <span class="cl">Samochod</span> <span class="kw">extends</span> <span class="cl">Pojazd</span> {
+    <span class="kw">private int</span> pojemnoscSilnika;
+
+    <span class="kw">public</span> <span class="cl">Samochod</span>(<span class="cl">String</span> marka, <span class="kw">int</span> rok, <span class="kw">int</span> pojemnosc) {
+        <span class="kw">super</span>(marka, rok);   <span class="cm">// wywołanie konstruktora rodzica</span>
+        <span class="kw">this</span>.pojemnoscSilnika = pojemnosc;
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="cl">String</span> <span class="mth">rodzajNapedu</span>() {
+        <span class="kw">return</span> <span class="str">"silnik spalinowy "</span> + pojemnoscSilnika + <span class="str">"cc"</span>;
+    }
+}
+
+<span class="kw">public class</span> <span class="cl">SamochodElektryczny</span> <span class="kw">extends</span> <span class="cl">Pojazd</span> {
+    <span class="kw">private int</span> zasiegKm;
+
+    <span class="kw">public</span> <span class="cl">SamochodElektryczny</span>(<span class="cl">String</span> marka, <span class="kw">int</span> rok, <span class="kw">int</span> zasieg) {
+        <span class="kw">super</span>(marka, rok);
+        <span class="kw">this</span>.zasiegKm = zasieg;
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="cl">String</span> <span class="mth">rodzajNapedu</span>() {
+        <span class="kw">return</span> <span class="str">"elektryczny, zasięg "</span> + zasiegKm + <span class="str">"km"</span>;
+    }
+}</pre>
+  </div>
+
+  <h2 class="section-title">Polimorfizm</h2>
+  <p class="prose">Ten sam kod działa z różnymi typami obiektów. Metoda wywoływana jest zgodnie z <strong>rzeczywistym typem obiektu</strong> w czasie wykonania (dynamic dispatch), nie typem zmiennej.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <span class="code-lang">Polimorfizm</span>
+      <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button>
+    </div>
+    <pre><span class="cl">List</span>&lt;<span class="cl">Pojazd</span>&gt; pojazdy = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
+pojazdy.<span class="mth">add</span>(<span class="kw">new</span> <span class="cl">Samochod</span>(<span class="str">"Toyota"</span>, <span class="num">2022</span>, <span class="num">1600</span>));
+pojazdy.<span class="mth">add</span>(<span class="kw">new</span> <span class="cl">SamochodElektryczny</span>(<span class="str">"Tesla"</span>, <span class="num">2023</span>, <span class="num">500</span>));
+
+<span class="cm">// Każdy pojazd odpowiada swoją implementacją rodzajNapedu()</span>
+<span class="kw">for</span> (<span class="cl">Pojazd</span> p : pojazdy) {
+    System.out.<span class="mth">println</span>(p.<span class="mth">info</span>());
+}
+<span class="cm">// Toyota (2022) — silnik spalinowy 1600cc</span>
+<span class="cm">// Tesla (2023) — elektryczny, zasięg 500km</span>
+
+<span class="cm">// Pattern Matching instanceof (Java 16+) — eleganckie rzutowanie</span>
+<span class="kw">for</span> (<span class="cl">Pojazd</span> p : pojazdy) {
+    <span class="kw">if</span> (p <span class="kw">instanceof</span> <span class="cl">SamochodElektryczny</span> el) {
+        System.out.<span class="mth">println</span>(<span class="str">"Zasięg: "</span> + el.zasiegKm + <span class="str">"km"</span>);
+        <span class="cm">// el jest już rzutowany — nie trzeba castować osobno</span>
+    }
+}</pre>
+  </div>
+
+  <h2 class="section-title">Interfejsy</h2>
+  <p class="prose">Interfejs definiuje <strong>kontrakt</strong> — co obiekt potrafi, bez informacji jak to robi. Klasa może implementować wiele interfejsów (w odróżnieniu od dziedziczenia). Od Java 8 interfejsy mogą mieć metody <code>default</code> i <code>static</code>.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <span class="code-lang">Interfejsy</span>
+      <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button>
+    </div>
+    <pre><span class="cm">// Interfejs — tylko kontrakt</span>
+<span class="kw">public interface</span> <span class="cl">Drukowalny</span> {
+    <span class="kw">void</span> <span class="mth">drukuj</span>();
+}
+
+<span class="kw">public interface</span> <span class="cl">Exportowalny</span> {
+    <span class="kw">byte</span>[] <span class="mth">eksportuj</span>();
+
+    <span class="cm">// Metoda default — implementacja w interfejsie (Java 8+)</span>
+    <span class="kw">default</span> <span class="cl">String</span> <span class="mth">formatNazwy</span>() {
+        <span class="kw">return</span> <span class="kw">this</span>.getClass().<span class="mth">getSimpleName</span>() + <span class="str">"-eksport"</span>;
+    }
+}
+
+<span class="cm">// Klasa może implementować WIELE interfejsów</span>
+<span class="kw">public class</span> <span class="cl">Faktura</span> <span class="kw">implements</span> <span class="cl">Drukowalny</span>, <span class="cl">Exportowalny</span> {
+    <span class="kw">private final</span> <span class="cl">String</span> numer;
+
+    <span class="ann">@Override</span>
+    <span class="kw">public void</span> <span class="mth">drukuj</span>() {
+        System.out.<span class="mth">println</span>(<span class="str">"Faktura: "</span> + numer);
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public byte</span>[] <span class="mth">eksportuj</span>() {
+        <span class="kw">return</span> numer.<span class="mth">getBytes</span>();
+    }
+}
+
+<span class="cm">// Interfejsy funkcyjne — z jedną metodą abstrakcyjną</span>
+<span class="ann">@FunctionalInterface</span>
+<span class="kw">public interface</span> <span class="cl">Walidator</span>&lt;<span class="cl">T</span>&gt; {
+    <span class="kw">boolean</span> <span class="mth">waliduj</span>(<span class="cl">T</span> wartosc);
+}
+
+<span class="cm">// Implementacja jako lambda</span>
+<span class="cl">Walidator</span>&lt;<span class="cl">String</span>&gt; emailValidator = s -> s.<span class="mth">contains</span>(<span class="str">"@"</span>) && s.<span class="mth">contains</span>(<span class="str">"."</span>);
+System.out.<span class="mth">println</span>(emailValidator.<span class="mth">waliduj</span>(<span class="str">"jan@example.com"</span>)); <span class="cm">// true</span></pre>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-icon">⚠️</div>
+    <div class="callout-body"><strong>Interfejs vs Klasa abstrakcyjna</strong> — użyj interfejsu gdy chcesz zdefiniować kontrakt wielokrotnego użytku i możliwość wielokrotnej implementacji. Użyj klasy abstrakcyjnej gdy klasy pochodne powinny dzielić implementację i stan (pola).</div>
+  </div>
+
+  <h2 class="section-title">Sealed Classes (Java 17+)</h2>
+  <p class="prose">Sealed classes ograniczają, które klasy mogą rozszerzać daną klasę lub interfejs. Kompilator może wtedy weryfikować kompletność obsługi wszystkich przypadków.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <span class="code-lang">Java 17+</span>
+      <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button>
+    </div>
+    <pre><span class="kw">public sealed interface</span> <span class="cl">Wynik</span>&lt;<span class="cl">T</span>&gt;
+    <span class="kw">permits</span> <span class="cl">Sukces</span>, <span class="cl">Blad</span> {}
+
+<span class="kw">public record</span> <span class="cl">Sukces</span>&lt;<span class="cl">T</span>&gt;(<span class="cl">T</span> wartosc) <span class="kw">implements</span> <span class="cl">Wynik</span>&lt;<span class="cl">T</span>&gt; {}
+<span class="kw">public record</span> <span class="cl">Blad</span>&lt;<span class="cl">T</span>&gt;(<span class="cl">String</span> komunikat) <span class="kw">implements</span> <span class="cl">Wynik</span>&lt;<span class="cl">T</span>&gt; {}
+
+<span class="cm">// Pattern matching switch — kompilator weryfikuje kompletność</span>
+<span class="cl">Wynik</span>&lt;<span class="cl">Integer</span>&gt; wynik = oblicz(<span class="num">10</span>, <span class="num">0</span>);
+<span class="cl">String</span> komunikat = <span class="kw">switch</span> (wynik) {
+    <span class="kw">case</span> <span class="cl">Sukces</span>&lt;<span class="cl">Integer</span>&gt;(var v) -> <span class="str">"Wynik: "</span> + v;
+    <span class="kw">case</span> <span class="cl">Blad</span>&lt;<span class="cl">Integer</span>&gt;(var msg) -> <span class="str">"Błąd: "</span> + msg;
+}; <span class="cm">// brak default — kompilator wie, że pokryliśmy wszystko</span></pre>
+  </div>
+
+  <nav class="chapter-nav">
+    <a href="01-podstawy.html">
+      <div class="nav-dir">← Poprzedni</div>
+      <div class="nav-title">Podstawy Javy</div>
+    </a>
+    <a href="03-solid.html" class="next">
+      <div class="nav-dir">Następny →</div>
+      <div class="nav-title">Zasady SOLID</div>
+    </a>
+  </nav>
+</main>
+
+<footer class="site-footer">
+  Źródła: <a href="https://docs.oracle.com/en/java/" target="_blank">Oracle Docs</a> ·
+  <a href="https://baeldung.com" target="_blank">Baeldung</a>
+</footer>
+<script>
+function copyCode(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(()=>{
+    btn.textContent='Skopiowano!';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='Kopiuj';btn.classList.remove('ok')},2000);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 — Maven & Gradle | Java Mastery</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-logo">java<span>.mastery</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Strona główna</a>
+    <a href="01-podstawy.html">Podstawy</a>
+    <a href="02-oop.html">OOP</a>
+    <a href="03-solid.html">SOLID</a>
+    <a href="04-wzorce.html">Wzorce</a>
+    <a href="05-collections.html">Kolekcje</a>
+    <a href="06-streams.html">Streams</a>
+    <a href="07-wyjatki-testy.html">Wyjątki</a>
+    <a href="08-zaawansowane.html">Zaawansowane</a>
+    <a href="09-maven-gradle.html" class="active">Maven/Gradle</a>
+    <a href="10-spring-core.html">Spring Core</a>
+    <a href="11-spring-boot.html">Spring Boot</a>
+    <a href="12-jpa.html">JPA</a>
+    <a href="13-security.html">Security</a>
+  </div>
+</nav>
+<div class="breadcrumb">
+  <a href="index.html">java.mastery</a><span class="sep">/</span>
+  <span class="current">09 — Maven & Gradle</span>
+</div>
+<main class="page-wrap">
+  <header class="chapter-header">
+    <div class="chapter-num">ROZDZIAŁ 09</div>
+    <h1 class="chapter-title">Maven & Gradle</h1>
+    <p class="chapter-desc">Narzędzia budowania projektu — zarządzanie zależnościami, cykl życia buildu, struktura projektu. Maven to standard enterprise, Gradle dominuje w ekosystemie Android i Spring Boot.</p>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
+      <span class="badge purple">Maven 3</span>
+      <span class="badge blue">Gradle 8</span>
+      <span class="badge">Poziom: Podstawowy</span>
+    </div>
+  </header>
+
+  <h2 class="section-title">Maven — Struktura Projektu</h2>
+  <p class="prose">Maven narzuca <strong>konwencję nad konfiguracją</strong> — standardową strukturę katalogów. Jeśli jej przestrzegasz, Maven "wie" gdzie szukać kodu, testów i zasobów.</p>
+
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">Struktura katalogów Maven</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre>moj-projekt/
+├── pom.xml                          <span class="cm"># Konfiguracja projektu</span>
+├── src/
+│   ├── main/
+│   │   ├── java/                    <span class="cm"># Kod źródłowy</span>
+│   │   │   └── com/example/
+│   │   │       └── App.java
+│   │   └── resources/               <span class="cm"># Pliki konfiguracyjne, SQL, properties</span>
+│   │       └── application.properties
+│   └── test/
+│       ├── java/                    <span class="cm"># Testy jednostkowe</span>
+│       │   └── com/example/
+│       │       └── AppTest.java
+│       └── resources/               <span class="cm"># Zasoby testowe</span>
+└── target/                          <span class="cm"># Wyniki budowania (generowane, nie do repo!)</span>
+    ├── classes/
+    └── moj-projekt-1.0.jar</pre>
+  </div>
+
+  <h2 class="section-title">pom.xml — Serce Projektu Maven</h2>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">pom.xml — kompletny przykład</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="str">&lt;project xmlns="http://maven.apache.org/POM/4.0.0"&gt;</span>
+    <span class="str">&lt;modelVersion&gt;</span>4.0.0<span class="str">&lt;/modelVersion&gt;</span>
+
+    <span class="cm">&lt;!-- Tożsamość projektu: groupId:artifactId:version = GAV --&gt;</span>
+    <span class="str">&lt;groupId&gt;</span>com.example<span class="str">&lt;/groupId&gt;</span>
+    <span class="str">&lt;artifactId&gt;</span>moj-projekt<span class="str">&lt;/artifactId&gt;</span>
+    <span class="str">&lt;version&gt;</span>1.0.0-SNAPSHOT<span class="str">&lt;/version&gt;</span>
+    <span class="str">&lt;packaging&gt;</span>jar<span class="str">&lt;/packaging&gt;</span>
+
+    <span class="str">&lt;properties&gt;</span>
+        <span class="str">&lt;java.version&gt;</span>21<span class="str">&lt;/java.version&gt;</span>
+        <span class="str">&lt;maven.compiler.source&gt;</span>${java.version}<span class="str">&lt;/maven.compiler.source&gt;</span>
+        <span class="str">&lt;maven.compiler.target&gt;</span>${java.version}<span class="str">&lt;/maven.compiler.target&gt;</span>
+        <span class="str">&lt;project.build.sourceEncoding&gt;</span>UTF-8<span class="str">&lt;/project.build.sourceEncoding&gt;</span>
+    <span class="str">&lt;/properties&gt;</span>
+
+    <span class="str">&lt;dependencies&gt;</span>
+        <span class="cm">&lt;!-- Scope: compile (domyślny), test, provided, runtime --&gt;</span>
+        <span class="str">&lt;dependency&gt;</span>
+            <span class="str">&lt;groupId&gt;</span>org.junit.jupiter<span class="str">&lt;/groupId&gt;</span>
+            <span class="str">&lt;artifactId&gt;</span>junit-jupiter<span class="str">&lt;/artifactId&gt;</span>
+            <span class="str">&lt;version&gt;</span>5.10.2<span class="str">&lt;/version&gt;</span>
+            <span class="str">&lt;scope&gt;</span>test<span class="str">&lt;/scope&gt;</span>   <span class="cm">&lt;!-- tylko do testów --&gt;</span>
+        <span class="str">&lt;/dependency&gt;</span>
+        <span class="str">&lt;dependency&gt;</span>
+            <span class="str">&lt;groupId&gt;</span>org.slf4j<span class="str">&lt;/groupId&gt;</span>
+            <span class="str">&lt;artifactId&gt;</span>slf4j-api<span class="str">&lt;/artifactId&gt;</span>
+            <span class="str">&lt;version&gt;</span>2.0.12<span class="str">&lt;/version&gt;</span>
+            <span class="cm">&lt;!-- scope compile — dostępny wszędzie --&gt;</span>
+        <span class="str">&lt;/dependency&gt;</span>
+    <span class="str">&lt;/dependencies&gt;</span>
+<span class="str">&lt;/project&gt;</span></pre>
+  </div>
+
+  <h2 class="section-title">Cykl Życia Maven</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Faza</th><th>Polecenie</th><th>Co robi</th></tr></thead>
+      <tbody>
+        <tr><td><code>validate</code></td><td></td><td>Sprawdza poprawność pom.xml</td></tr>
+        <tr><td><code>compile</code></td><td><code>mvn compile</code></td><td>Kompiluje kod źródłowy do <code>target/classes</code></td></tr>
+        <tr><td><code>test</code></td><td><code>mvn test</code></td><td>Uruchamia testy jednostkowe</td></tr>
+        <tr><td><code>package</code></td><td><code>mvn package</code></td><td>Pakuje do JAR/WAR w <code>target/</code></td></tr>
+        <tr><td><code>verify</code></td><td><code>mvn verify</code></td><td>Uruchamia testy integracyjne</td></tr>
+        <tr><td><code>install</code></td><td><code>mvn install</code></td><td>Instaluje JAR w lokalnym repozytorium (~/.m2)</td></tr>
+        <tr><td><code>deploy</code></td><td><code>mvn deploy</code></td><td>Wysyła do zdalnego repozytorium (Nexus, Artifactory)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout tip">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body"><strong>Każda faza uruchamia wszystkie poprzednie.</strong> <code>mvn package</code> = validate + compile + test + package. Aby pominąć testy: <code>mvn package -DskipTests</code>.</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">Najczęstsze komendy Maven</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="cm"># Zbuduj i uruchom testy</span>
+mvn clean package
+
+<span class="cm"># Pomiń testy (szybszy build)</span>
+mvn clean package -DskipTests
+
+<span class="cm"># Uruchom tylko jeden test</span>
+mvn test -Dtest=NazwaKlasyTest
+
+<span class="cm"># Pokaż drzewo zależności (przydatne przy konfliktach)</span>
+mvn dependency:tree
+
+<span class="cm"># Sprawdź dostępne aktualizacje zależności</span>
+mvn versions:display-dependency-updates
+
+<span class="cm"># Uruchom aplikację (plugin exec)</span>
+mvn exec:java -Dexec.mainClass="com.example.App"</pre>
+  </div>
+
+  <h2 class="section-title">Gradle — Nowoczesna Alternatywa</h2>
+  <p class="prose">Gradle używa skryptów (Groovy lub <strong>Kotlin DSL</strong>) zamiast XML. Jest szybszy dzięki inkrementalnemu buildowi i cache'owaniu. Domyślny w Spring Initializr i Android.</p>
+
+  <div class="tabs-wrap">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="tab(this,'g-kts')">Kotlin DSL (build.gradle.kts)</button>
+      <button class="tab-btn" onclick="tab(this,'g-groovy')">Groovy DSL (build.gradle)</button>
+    </div>
+    <div id="g-kts" class="tab-panel active">
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span class="code-lang">build.gradle.kts</span>
+        <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+        <pre>plugins {
+    java
+    application
+}
+
+group = <span class="str">"com.example"</span>
+version = <span class="str">"1.0.0"</span>
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+repositories {
+    mavenCentral()  <span class="cm">// skąd pobierać zależności</span>
+}
+
+dependencies {
+    implementation(<span class="str">"org.slf4j:slf4j-api:2.0.12"</span>)
+    testImplementation(<span class="str">"org.junit.jupiter:junit-jupiter:5.10.2"</span>)
+    testRuntimeOnly(<span class="str">"org.junit.platform:junit-platform-launcher"</span>)
+}
+
+application {
+    mainClass = <span class="str">"com.example.App"</span>
+}
+
+tasks.test {
+    useJUnitPlatform()
+}</pre>
+      </div>
+    </div>
+    <div id="g-groovy" class="tab-panel">
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span class="code-lang">build.gradle</span>
+        <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+        <pre>plugins {
+    id <span class="str">'java'</span>
+    id <span class="str">'application'</span>
+}
+
+group = <span class="str">'com.example'</span>
+version = <span class="str">'1.0.0'</span>
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation <span class="str">'org.slf4j:slf4j-api:2.0.12'</span>
+    testImplementation <span class="str">'org.junit.jupiter:junit-jupiter:5.10.2'</span>
+}
+
+application {
+    mainClass = <span class="str">'com.example.App'</span>
+}
+
+test {
+    useJUnitPlatform()
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">Najczęstsze komendy Gradle</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="cm"># Zbuduj projekt</span>
+./gradlew build
+
+<span class="cm"># Uruchom testy</span>
+./gradlew test
+
+<span class="cm"># Uruchom aplikację</span>
+./gradlew run
+
+<span class="cm"># Pokaż zależności</span>
+./gradlew dependencies
+
+<span class="cm"># Pokaż dostępne taski</span>
+./gradlew tasks
+
+<span class="cm"># Wyczyść build</span>
+./gradlew clean</pre>
+  </div>
+
+  <h2 class="section-title">Maven vs Gradle — Kiedy Co Wybrać?</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Kryterium</th><th>Maven</th><th>Gradle</th></tr></thead>
+      <tbody>
+        <tr><td>Format konfiguracji</td><td>XML (verbose)</td><td>Kotlin/Groovy DSL (zwięzły)</td></tr>
+        <tr><td>Prędkość buildu</td><td>Wolniejszy</td><td>Szybszy (incremental, cache)</td></tr>
+        <tr><td>Dojrzałość</td><td>Bardzo dojrzały (2004)</td><td>Dojrzały (2012)</td></tr>
+        <tr><td>Ekosystem Spring</td><td>✅ Bardzo popularny</td><td>✅ Domyślny w Initializr</td></tr>
+        <tr><td>Android</td><td>❌ Nie używany</td><td>✅ Jedyny standard</td></tr>
+        <tr><td>Krzywa uczenia</td><td>Łagodna</td><td>Bardziej stroma</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <nav class="chapter-nav">
+    <a href="08-zaawansowane.html"><div class="nav-dir">← Poprzedni</div><div class="nav-title">Zaawansowane — JVM</div></a>
+    <a href="10-spring-core.html" class="next"><div class="nav-dir">Następny →</div><div class="nav-title">Spring Core</div></a>
+  </nav>
+</main>
+<footer class="site-footer">
+  Źródła: <a href="https://maven.apache.org/guides/" target="_blank">Maven Docs</a> ·
+  <a href="https://docs.gradle.org/current/userguide/userguide.html" target="_blank">Gradle Docs</a>
+</footer>
+<script>
+function copyCode(btn){const pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(()=>{btn.textContent='Skopiowano!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Kopiuj';btn.classList.remove('ok')},2000)});}
+function tab(btn,id){const wrap=btn.closest('.tabs-wrap');wrap.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));wrap.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById(id).classList.add('active');}
+</script>
+</body>
+</html>

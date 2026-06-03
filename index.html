@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Mastery — Dobre Praktyki</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.hero{padding:5rem 2rem 3.5rem;max-width:960px;margin:0 auto}
+.hero-eyebrow{font-family:var(--mono);font-size:.75rem;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;margin-bottom:1.1rem;display:flex;align-items:center;gap:.6rem}
+.hero-eyebrow::before{content:'';display:inline-block;width:28px;height:1px;background:var(--accent)}
+.hero h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-bottom:1.1rem}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero-sub{font-size:1rem;color:var(--text2);max-width:560px;line-height:1.8;margin-bottom:2.5rem}
+.hero-meta{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:3.5rem}
+.chapter-grid{max-width:960px;margin:0 auto;padding:0 2rem 5rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+.chapter-card{display:flex;flex-direction:column;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;transition:border-color .22s,transform .22s,box-shadow .22s;position:relative;overflow:hidden}
+.chapter-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--blue));transform:scaleX(0);transform-origin:left;transition:transform .28s ease}
+.chapter-card:hover{border-color:rgba(198,155,255,.35);transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.45)}
+.chapter-card:hover::before{transform:scaleX(1)}
+.cc-num{font-family:var(--mono);font-size:.68rem;color:var(--text3);letter-spacing:.1em;margin-bottom:.9rem}
+.cc-icon{font-size:1.6rem;margin-bottom:.7rem}
+.cc-title{font-size:1rem;font-weight:700;margin-bottom:.4rem;letter-spacing:-.01em}
+.cc-desc{font-size:.8rem;color:var(--text2);line-height:1.65;flex:1;margin-bottom:1.1rem}
+.cc-link{font-family:var(--mono);font-size:.72rem;color:var(--accent);display:flex;align-items:center;gap:.35rem;transition:gap .18s}
+.chapter-card:hover .cc-link{gap:.6rem}
+.section-label{max-width:960px;margin:0 auto;padding:.4rem 2rem 1.2rem;font-family:var(--mono);font-size:.68rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase}
+.section-divider{max-width:960px;margin:2rem auto 0;padding:0 2rem}
+.section-divider hr{border:none;border-top:1px solid var(--border)}
+.section-divider-label{font-family:var(--mono);font-size:.68rem;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;margin:1.5rem 0 .5rem;padding:0 2rem;max-width:960px;margin-left:auto;margin-right:auto}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-logo">java<span>.mastery</span></div>
+  <div class="topnav-links">
+    <a href="index.html" class="active">Strona główna</a>
+    <a href="01-podstawy.html">Podstawy</a>
+    <a href="02-oop.html">OOP</a>
+    <a href="03-solid.html">SOLID</a>
+    <a href="04-wzorce.html">Wzorce</a>
+    <a href="05-collections.html">Kolekcje</a>
+    <a href="06-streams.html">Streams</a>
+    <a href="07-wyjatki-testy.html">Wyjątki</a>
+    <a href="08-zaawansowane.html">Zaawansowane</a>
+    <a href="09-maven-gradle.html">Maven/Gradle</a>
+    <a href="10-spring-core.html">Spring Core</a>
+    <a href="11-spring-boot.html">Spring Boot</a>
+    <a href="12-jpa.html">JPA</a>
+    <a href="13-security.html">Security</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-eyebrow">Kompletny przewodnik</div>
+  <h1>Dobre Praktyki<br>w <em>Javie</em></h1>
+  <p class="hero-sub">Od podstawowej składni po Spring Boot, JPA i Security. Każdy rozdział zweryfikowany ze sprawdzonych źródeł: Oracle Docs, Baeldung, FreeCodeCamp.</p>
+  <div class="hero-meta">
+    <span class="badge purple">☕ Java 8–21</span>
+    <span class="badge">13 rozdziałów</span>
+    <span class="badge">Przykłady kodu</span>
+    <span class="badge green">Spring Boot 3</span>
+    <span class="badge blue">GitHub Pages ready</span>
+  </div>
+</header>
+
+<!-- CZĘŚĆ 1 -->
+<div class="section-label">Część 1 — Podstawy & OOP</div>
+<div class="chapter-grid">
+  <a href="01-podstawy.html" class="chapter-card">
+    <div class="cc-num">ROZDZIAŁ 01</div>
+    <div class="cc-icon">🔤</div>
+    <div class="cc-title">Podstawy Javy</div>
+    <div class="cc-desc">Typy danych, zmienne, operatory, pętle, tablice, struktura projektu i historia języka.</div>
+    <div class="cc-link">Czytaj →</div>
+  </a>
+  <a href="02-oop.html" class="chapter-card">
+    <div class="cc-num">ROZDZIAŁ 02</div>
+    <div class="cc-icon">🧩</div>
+    <div class="cc-title">OOP — Programowanie Obiektowe</div>
+    <div class="cc-desc">Klasy, obiekty, dziedziczenie, polimorfizm, enkapsulacja, interfejsy i klasy abstrakcyjne.</div>
+    <div class="cc-link">Czytaj →</div>
+  </a>
+  <a href="03-solid.html" class="chapter-card">
+    <div class="cc-num">ROZDZIAŁ 03</div>
+    <div class="cc-icon">⚖️</div>
+    <div class="cc-title">Zasady SOLID</div>
+    <div class="cc-desc">Pięć fundamentalnych zasad projektowania wg Roberta C. Martina z przykładami dobrego i złego kodu.</div>
+    <div class="cc-link">Czytaj →</div>
+  </a>
+  <a href="04-wzorce.html" class="chapter-card">
+    <div class="cc-num">ROZDZIAŁ 04</div>
+    <div class="cc-icon">🏛️</div>
+    <div class="cc-title">Wzorce Projektowe</div>
+    <div class="cc-desc">Kreacyjne, strukturalne i behawioralne wzorce projektowe — Singleton, Builder, Observer i inne.</div>
+    <div class="cc-link">Czytaj →</div>
+  </a>
+</div>
+
+<!-- CZĘŚĆ 2 -->
+<div class="section-label" style="margin-top:1rem">Część 2 — API Javy</div>
+<div class="chapter-grid">
+  <a href="05-collections.html" class="chapter-card">
+    <div class="cc-num">ROZDZIAŁ 05</div>
+    <div class="cc-icon">📦</div>
+    <div class="cc-title">Kolekcje & Generics</div>
+    <div class="cc-desc">List, Map, Set, Queue — kiedy użyć której struktury. Typy generyczne i ich dobre praktyki.</div>
+    <div class="cc-link">Czytaj →</div>
+  </a>
+  <a href="06-streams.html" class="chapter-card">
+    <div class="cc-num">ROZDZIAŁ 06</div>
+    <div class="cc-icon">🌊</div>
+    <div class="cc-title">Streams, Lambdy & Optional</div>
+    <div class="cc-desc">Programowanie funkcyjne w Javie 8+. Stream API, wyrażenia lambda, referencje do metod.</div>
+    <div class="cc-link">Czytaj →</div>
+  </a>
+  <a href="07-wyjatki-testy.html" class="chapter-card">
+    <div class="cc-num">ROZDZIAŁ 07</div>
+    <div class="cc-icon">🧪</div>
+    <div class="cc-title">Wyjątki & Testy</div>
+    <div class="cc-desc">Obsługa błędów, hierarchia wyjątków, try-with-resources. JUnit 5 i Mockito.</div>
+    <div class="cc-link">Czytaj →</div>
+  </a>
+  <a href="08-zaawansowane.html" class="chapter-card">
+    <div class="cc-num">ROZDZIAŁ 08</div>
+    <div class="cc-icon">🚀</div>
+    <div class="cc-title">Zaawansowane — JVM & Concurrency</div>
+    <div class="cc-desc">Jak działa JVM, Garbage Collection, wielowątkowość, Virtual Threads (Java 21) i Clean Code.</div>
+    <div class="cc-link">Czytaj →</div>
+  </a>
+</div>
+
+<!-- CZĘŚĆ 3 -->
+<div class="section-label" style="margin-top:1rem">Część 3 — Ekosystem Spring</div>
+<div class="chapter-grid">
+  <a href="09-maven-gradle.html" class="chapter-card">
+    <div class="cc-num">ROZDZIAŁ 09</div>
+    <div class="cc-icon">🔨</div>
+    <div class="cc-title">Maven & Gradle</div>
+    <div class="cc-desc">Narzędzia budowania projektu — zarządzanie zależnościami, cykl życia buildu, pom.xml vs build.gradle.</div>
+    <div class="cc-link">Czytaj →</div>
+  </a>
+  <a href="10-spring-core.html" class="chapter-card">
+    <div class="cc-num">ROZDZIAŁ 10</div>
+    <div class="cc-icon">🌱</div>
+    <div class="cc-title">Spring Core</div>
+    <div class="cc-desc">Inversion of Control, Dependency Injection, kontener IoC, adnotacje, scopy beanów i AOP.</div>
+    <div class="cc-link">Czytaj →</div>
+  </a>
+  <a href="11-spring-boot.html" class="chapter-card">
+    <div class="cc-num">ROZDZIAŁ 11</div>
+    <div class="cc-icon">⚡</div>
+    <div class="cc-title">Spring Boot</div>
+    <div class="cc-desc">REST API, auto-configuration, walidacja, obsługa błędów, profile i Actuator do monitoringu.</div>
+    <div class="cc-link">Czytaj →</div>
+  </a>
+  <a href="12-jpa.html" class="chapter-card">
+    <div class="cc-num">ROZDZIAŁ 12</div>
+    <div class="cc-icon">🗄️</div>
+    <div class="cc-title">JPA & Hibernate</div>
+    <div class="cc-desc">ORM, encje, relacje ManyToOne/OneToMany/ManyToMany, Spring Data JPA, JPQL, problem N+1.</div>
+    <div class="cc-link">Czytaj →</div>
+  </a>
+  <a href="13-security.html" class="chapter-card">
+    <div class="cc-num">ROZDZIAŁ 13</div>
+    <div class="cc-icon">🔐</div>
+    <div class="cc-title">Spring Security & JWT</div>
+    <div class="cc-desc">Autentykacja i autoryzacja. SecurityFilterChain, tokeny JWT, BCrypt, @PreAuthorize.</div>
+    <div class="cc-link">Czytaj →</div>
+  </a>
+</div>
+
+<footer class="site-footer">
+  Źródła: <a href="https://docs.oracle.com/en/java/" target="_blank">Oracle Docs</a> ·
+  <a href="https://baeldung.com" target="_blank">Baeldung</a> ·
+  <a href="https://freecodecamp.org" target="_blank">FreeCodeCamp</a> ·
+  <a href="https://docs.spring.io" target="_blank">Spring Docs</a>
+</footer>
+</body>
+</html>

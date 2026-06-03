@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 — Spring Security | Java Mastery</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-logo">java<span>.mastery</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Strona główna</a>
+    <a href="09-maven-gradle.html">Maven/Gradle</a>
+    <a href="10-spring-core.html">Spring Core</a>
+    <a href="11-spring-boot.html">Spring Boot</a>
+    <a href="12-jpa.html">JPA</a>
+    <a href="13-security.html" class="active">Security</a>
+  </div>
+</nav>
+<div class="breadcrumb">
+  <a href="index.html">java.mastery</a><span class="sep">/</span>
+  <span class="current">13 — Spring Security & JWT</span>
+</div>
+<main class="page-wrap">
+  <header class="chapter-header">
+    <div class="chapter-num">ROZDZIAŁ 13</div>
+    <h1 class="chapter-title">Spring Security<br>& JWT</h1>
+    <p class="chapter-desc">Autentykacja i autoryzacja w aplikacjach Spring Boot. Bezstanowe API z JWT, ochrona endpointów, hashowanie haseł i podstawy OAuth2.</p>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
+      <span class="badge purple">Spring Security 6</span>
+      <span class="badge red">Poziom: Zaawansowany</span>
+    </div>
+  </header>
+
+  <div class="callout tip">
+    <div class="callout-icon">🔐</div>
+    <div class="callout-body"><strong>Autentykacja vs Autoryzacja:</strong> Autentykacja = <em>Kim jesteś?</em> (login/hasło, JWT). Autoryzacja = <em>Co możesz robić?</em> (role, uprawnienia). Spring Security obsługuje obie warstwy.</div>
+  </div>
+
+  <h2 class="section-title">Konfiguracja Security — SecurityFilterChain</h2>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">SecurityConfig.java — Spring Security 6</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="ann">@Configuration</span>
+<span class="ann">@EnableWebSecurity</span>
+<span class="ann">@EnableMethodSecurity</span>  <span class="cm">// włącza @PreAuthorize na metodach</span>
+<span class="kw">public class</span> <span class="cl">SecurityConfig</span> {
+
+    <span class="kw">private final</span> <span class="cl">JwtAuthFilter</span> jwtFilter;
+
+    <span class="ann">@Bean</span>
+    <span class="kw">public</span> <span class="cl">SecurityFilterChain</span> <span class="mth">filterChain</span>(<span class="cl">HttpSecurity</span> http) <span class="kw">throws</span> <span class="cl">Exception</span> {
+        <span class="kw">return</span> http
+            <span class="cm">// ✅ Bezstanowe API — bez sesji HTTP</span>
+            .<span class="mth">sessionManagement</span>(s -> s
+                .<span class="mth">sessionCreationPolicy</span>(<span class="cl">SessionCreationPolicy</span>.<span class="ann">STATELESS</span>))
+
+            <span class="cm">// Wyłącz CSRF dla REST API (tokeny JWT chronią wystarczająco)</span>
+            .<span class="mth">csrf</span>(<span class="cl">AbstractHttpConfigurer</span>::<span class="mth">disable</span>)
+
+            <span class="cm">// Reguły autoryzacji — od najbardziej szczegółowych do ogólnych!</span>
+            .<span class="mth">authorizeHttpRequests</span>(auth -> auth
+                .<span class="mth">requestMatchers</span>(<span class="str">"/api/auth/**"</span>).<span class="mth">permitAll</span>()          <span class="cm">// publiczne</span>
+                .<span class="mth">requestMatchers</span>(<span class="str">"/api/admin/**"</span>).<span class="mth">hasRole</span>(<span class="str">"ADMIN"</span>)   <span class="cm">// tylko admin</span>
+                .<span class="mth">requestMatchers</span>(<span class="cl">HttpMethod</span>.<span class="ann">GET</span>, <span class="str">"/api/produkty"</span>)
+                    .<span class="mth">hasAnyRole</span>(<span class="str">"USER"</span>, <span class="str">"ADMIN"</span>)
+                .<span class="mth">anyRequest</span>().<span class="mth">authenticated</span>()                        <span class="cm">// reszta wymaga auth</span>
+            )
+
+            <span class="cm">// Dodaj filtr JWT przed filtrem username/password</span>
+            .<span class="mth">addFilterBefore</span>(jwtFilter, <span class="cl">UsernamePasswordAuthenticationFilter</span>.<span class="kw">class</span>)
+            .<span class="mth">build</span>();
+    }
+
+    <span class="cm">// Encoder haseł — BCrypt to standard (cost factor 12 zalecany)</span>
+    <span class="ann">@Bean</span>
+    <span class="kw">public</span> <span class="cl">PasswordEncoder</span> <span class="mth">passwordEncoder</span>() {
+        <span class="kw">return new</span> <span class="cl">BCryptPasswordEncoder</span>(<span class="num">12</span>);
+    }
+
+    <span class="ann">@Bean</span>
+    <span class="kw">public</span> <span class="cl">AuthenticationManager</span> <span class="mth">authManager</span>(<span class="cl">AuthenticationConfiguration</span> cfg)
+            <span class="kw">throws</span> <span class="cl">Exception</span> {
+        <span class="kw">return</span> cfg.<span class="mth">getAuthenticationManager</span>();
+    }
+}</pre>
+  </div>
+
+  <h2 class="section-title">JWT — JSON Web Token</h2>
+  <p class="prose">JWT to podpisany token zawierający claims (twierdzenia) o użytkowniku. Składa się z trzech części: <code>header.payload.signature</code> zakodowanych w Base64. Serwer weryfikuje podpis — nie potrzebuje sesji ani bazy.</p>
+
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">JwtSerwis.java — generowanie i weryfikacja tokenów</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="ann">@Service</span>
+<span class="kw">public class</span> <span class="cl">JwtSerwis</span> {
+
+    <span class="ann">@Value</span>(<span class="str">"${app.jwt.secret}"</span>)
+    <span class="kw">private</span> <span class="cl">String</span> secret;       <span class="cm">// min 256-bit — ze zmiennej środowiskowej!</span>
+
+    <span class="ann">@Value</span>(<span class="str">"${app.jwt.expiration}"</span>)
+    <span class="kw">private long</span> expirationSec;   <span class="cm">// np. 3600 = 1 godzina</span>
+
+    <span class="kw">public</span> <span class="cl">String</span> <span class="mth">generuj</span>(<span class="cl">UserDetails</span> user) {
+        <span class="kw">var</span> teraz = <span class="cl">Instant</span>.<span class="mth">now</span>();
+        <span class="kw">return</span> <span class="cl">Jwts</span>.<span class="mth">builder</span>()
+            .<span class="mth">subject</span>(user.<span class="mth">getUsername</span>())
+            .<span class="mth">claim</span>(<span class="str">"roles"</span>, user.<span class="mth">getAuthorities</span>()
+                .stream().<span class="mth">map</span>(<span class="cl">GrantedAuthority</span>::<span class="mth">getAuthority</span>).<span class="mth">toList</span>())
+            .<span class="mth">issuedAt</span>(<span class="cl">Date</span>.<span class="mth">from</span>(teraz))
+            .<span class="mth">expiration</span>(<span class="cl">Date</span>.<span class="mth">from</span>(teraz.<span class="mth">plusSeconds</span>(expirationSec)))
+            .<span class="mth">signWith</span>(<span class="mth">klucz</span>(), <span class="cl">Jwts</span>.<span class="mth">SIG</span>.<span class="ann">HS256</span>)
+            .<span class="mth">compact</span>();
+    }
+
+    <span class="kw">public</span> <span class="cl">Claims</span> <span class="mth">parsuj</span>(<span class="cl">String</span> token) {
+        <span class="kw">return</span> <span class="cl">Jwts</span>.<span class="mth">parser</span>()
+            .<span class="mth">verifyWith</span>(<span class="mth">klucz</span>())
+            .<span class="mth">build</span>()
+            .<span class="mth">parseSignedClaims</span>(token)
+            .<span class="mth">getPayload</span>();
+    }
+
+    <span class="kw">public boolean</span> <span class="mth">czyWazny</span>(<span class="cl">String</span> token, <span class="cl">UserDetails</span> user) {
+        <span class="kw">try</span> {
+            <span class="kw">var</span> claims = <span class="mth">parsuj</span>(token);
+            <span class="kw">return</span> claims.<span class="mth">getSubject</span>().<span class="mth">equals</span>(user.<span class="mth">getUsername</span>())
+                && !claims.<span class="mth">getExpiration</span>().<span class="mth">before</span>(<span class="kw">new</span> <span class="cl">Date</span>());
+        } <span class="kw">catch</span> (<span class="cl">JwtException</span> e) {
+            <span class="kw">return false</span>;
+        }
+    }
+
+    <span class="kw">private</span> <span class="cl">SecretKey</span> <span class="mth">klucz</span>() {
+        <span class="kw">return</span> <span class="cl">Keys</span>.<span class="mth">hmacShaKeyFor</span>(<span class="cl">Decoders</span>.<span class="ann">BASE64</span>.<span class="mth">decode</span>(secret));
+    }
+}</pre>
+  </div>
+
+  <h2 class="section-title">Filtr JWT — Każde Żądanie</h2>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">JwtAuthFilter.java</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="ann">@Component</span>
+<span class="ann">@RequiredArgsConstructor</span>
+<span class="kw">public class</span> <span class="cl">JwtAuthFilter</span> <span class="kw">extends</span> <span class="cl">OncePerRequestFilter</span> {
+
+    <span class="kw">private final</span> <span class="cl">JwtSerwis</span> jwt;
+    <span class="kw">private final</span> <span class="cl">UserDetailsService</span> uds;
+
+    <span class="ann">@Override</span>
+    <span class="kw">protected void</span> <span class="mth">doFilterInternal</span>(
+            <span class="cl">HttpServletRequest</span> req,
+            <span class="cl">HttpServletResponse</span> res,
+            <span class="cl">FilterChain</span> chain) <span class="kw">throws</span> <span class="cl">ServletException</span>, <span class="cl">IOException</span> {
+
+        <span class="kw">var</span> header = req.<span class="mth">getHeader</span>(<span class="str">"Authorization"</span>);
+
+        <span class="cm">// Brak tokenu lub zły format — pomiń filtr</span>
+        <span class="kw">if</span> (header == <span class="kw">null</span> || !header.<span class="mth">startsWith</span>(<span class="str">"Bearer "</span>)) {
+            chain.<span class="mth">doFilter</span>(req, res);
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">var</span> token = header.<span class="mth">substring</span>(<span class="num">7</span>); <span class="cm">// usuń "Bearer "</span>
+        <span class="kw">var</span> username = jwt.<span class="mth">parsuj</span>(token).<span class="mth">getSubject</span>();
+
+        <span class="kw">if</span> (username != <span class="kw">null</span> && <span class="cl">SecurityContextHolder</span>.<span class="mth">getContext</span>().<span class="mth">getAuthentication</span>() == <span class="kw">null</span>) {
+            <span class="kw">var</span> user = uds.<span class="mth">loadUserByUsername</span>(username);
+
+            <span class="kw">if</span> (jwt.<span class="mth">czyWazny</span>(token, user)) {
+                <span class="kw">var</span> auth = <span class="kw">new</span> <span class="cl">UsernamePasswordAuthenticationToken</span>(
+                    user, <span class="kw">null</span>, user.<span class="mth">getAuthorities</span>());
+                auth.<span class="mth">setDetails</span>(<span class="kw">new</span> <span class="cl">WebAuthenticationDetailsSource</span>().<span class="mth">buildDetails</span>(req));
+                <span class="cm">// Ustaw użytkownika w SecurityContext — żądanie jest teraz uwierzytelnione</span>
+                <span class="cl">SecurityContextHolder</span>.<span class="mth">getContext</span>().<span class="mth">setAuthentication</span>(auth);
+            }
+        }
+        chain.<span class="mth">doFilter</span>(req, res);
+    }
+}</pre>
+  </div>
+
+  <h2 class="section-title">Autoryzacja na Poziomie Metody</h2>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">@PreAuthorize — granularna kontrola dostępu</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="ann">@RestController</span>
+<span class="ann">@RequestMapping</span>(<span class="str">"/api/admin"</span>)
+<span class="kw">public class</span> <span class="cl">AdminController</span> {
+
+    <span class="cm">// Tylko użytkownicy z rolą ADMIN</span>
+    <span class="ann">@GetMapping</span>(<span class="str">"/uzytkownicy"</span>)
+    <span class="ann">@PreAuthorize</span>(<span class="str">"hasRole('ADMIN')"</span>)
+    <span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">UzytkownikDto</span>&gt; <span class="mth">wszyscyUzytkownicy</span>() { ... }
+
+    <span class="cm">// Użytkownik może pobrać SWÓJ profil LUB admin każdy</span>
+    <span class="ann">@GetMapping</span>(<span class="str">"/uzytkownicy/{id}"</span>)
+    <span class="ann">@PreAuthorize</span>(<span class="str">"hasRole('ADMIN') or #id == authentication.principal.id"</span>)
+    <span class="kw">public</span> <span class="cl">UzytkownikDto</span> <span class="mth">profil</span>(<span class="ann">@PathVariable</span> <span class="cl">Long</span> id) { ... }
+
+    <span class="cm">// SpEL — Spring Expression Language w @PreAuthorize</span>
+    <span class="ann">@DeleteMapping</span>(<span class="str">"/uzytkownicy/{id}"</span>)
+    <span class="ann">@PreAuthorize</span>(<span class="str">"hasRole('SUPER_ADMIN') and #id != authentication.principal.id"</span>)
+    <span class="kw">public void</span> <span class="mth">usunUzytkownika</span>(<span class="ann">@PathVariable</span> <span class="cl">Long</span> id) { ... }
+}
+
+<span class="cm">// Pobranie aktualnie zalogowanego użytkownika</span>
+<span class="ann">@GetMapping</span>(<span class="str">"/moj-profil"</span>)
+<span class="kw">public</span> <span class="cl">UzytkownikDto</span> <span class="mth">mojProfil</span>(<span class="ann">@AuthenticationPrincipal</span> <span class="cl">UserDetails</span> user) {
+    <span class="kw">return</span> serwis.<span class="mth">znajdz</span>(user.<span class="mth">getUsername</span>());
+}</pre>
+  </div>
+
+  <h2 class="section-title">Endpoint Logowania — AuthController</h2>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">AuthController.java</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="ann">@RestController</span>
+<span class="ann">@RequestMapping</span>(<span class="str">"/api/auth"</span>)
+<span class="ann">@RequiredArgsConstructor</span>
+<span class="kw">public class</span> <span class="cl">AuthController</span> {
+
+    <span class="kw">private final</span> <span class="cl">AuthenticationManager</span> authManager;
+    <span class="kw">private final</span> <span class="cl">JwtSerwis</span> jwtSerwis;
+    <span class="kw">private final</span> <span class="cl">UserDetailsService</span> uds;
+
+    <span class="cm">// POST /api/auth/login</span>
+    <span class="ann">@PostMapping</span>(<span class="str">"/login"</span>)
+    <span class="kw">public</span> <span class="cl">ResponseEntity</span>&lt;<span class="cl">TokenResponse</span>&gt; <span class="mth">login</span>(<span class="ann">@RequestBody</span> <span class="cl">LoginRequest</span> req) {
+        <span class="cm">// Rzuci BadCredentialsException jeśli dane nieprawidłowe</span>
+        authManager.<span class="mth">authenticate</span>(
+            <span class="kw">new</span> <span class="cl">UsernamePasswordAuthenticationToken</span>(req.login(), req.haslo()));
+
+        <span class="kw">var</span> user = uds.<span class="mth">loadUserByUsername</span>(req.login());
+        <span class="kw">var</span> token = jwtSerwis.<span class="mth">generuj</span>(user);
+
+        <span class="kw">return</span> <span class="cl">ResponseEntity</span>.<span class="mth">ok</span>(<span class="kw">new</span> <span class="cl">TokenResponse</span>(token, <span class="str">"Bearer"</span>, <span class="num">3600</span>));
+    }
+}
+
+<span class="cm">// Request/Response jako Records</span>
+<span class="kw">public record</span> <span class="cl">LoginRequest</span>(<span class="ann">@NotBlank</span> <span class="cl">String</span> login, <span class="ann">@NotBlank</span> <span class="cl">String</span> haslo) {}
+<span class="kw">public record</span> <span class="cl">TokenResponse</span>(<span class="cl">String</span> token, <span class="cl">String</span> typ, <span class="kw">long</span> expiresIn) {}</pre>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-icon">⚠️</div>
+    <div class="callout-body"><strong>Bezpieczeństwo haseł:</strong> Nigdy nie przechowuj haseł jako plaintext. Używaj BCrypt z cost factor ≥ 10. Nigdy nie loguj haseł. Używaj HTTPS w produkcji. Przechowuj JWT secret w zmiennych środowiskowych, nie w kodzie.</div>
+  </div>
+
+  <div class="callout good">
+    <div class="callout-icon">🎓</div>
+    <div class="callout-body"><strong>Koniec rozdziałów 09–13!</strong> Masz teraz pełny obraz Java enterprise — od build tools przez Spring Core, Boot, JPA po Security. Wróć do <a href="index.html" style="color:var(--green)">strony głównej</a> i zaplanuj dalszą naukę.</div>
+  </div>
+
+  <nav class="chapter-nav">
+    <a href="12-jpa.html"><div class="nav-dir">← Poprzedni</div><div class="nav-title">JPA & Hibernate</div></a>
+    <a href="index.html" class="next"><div class="nav-dir">🏠 Koniec</div><div class="nav-title">Strona główna</div></a>
+  </nav>
+</main>
+<footer class="site-footer">
+  Źródła: <a href="https://docs.spring.io/spring-security/reference/" target="_blank">Spring Security Docs</a> ·
+  <a href="https://baeldung.com/security-spring" target="_blank">Baeldung Security</a>
+</footer>
+<script>
+function copyCode(btn){const pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(()=>{btn.textContent='Skopiowano!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Kopiuj';btn.classList.remove('ok')},2000)});}
+</script>
+</body>
+</html>

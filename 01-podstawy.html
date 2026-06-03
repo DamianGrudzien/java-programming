@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 — Podstawy Javy | Java Mastery</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.type-table td:first-child{font-family:var(--mono);color:var(--accent);font-weight:600}
+.type-table td:nth-child(2){color:var(--blue);font-family:var(--mono)}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-logo">java<span>.mastery</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Strona główna</a>
+    <a href="01-podstawy.html" class="active">Podstawy</a>
+    <a href="02-oop.html">OOP</a>
+    <a href="03-solid.html">SOLID</a>
+    <a href="04-wzorce.html">Wzorce</a>
+    <a href="05-collections.html">Kolekcje</a>
+    <a href="06-streams.html">Streams</a>
+    <a href="07-wyjatki-testy.html">Wyjątki & Testy</a>
+    <a href="08-zaawansowane.html">Zaawansowane</a>
+  </div>
+</nav>
+<div class="breadcrumb">
+  <a href="index.html">java.mastery</a>
+  <span class="sep">/</span>
+  <span class="current">01 — Podstawy Javy</span>
+</div>
+
+<main class="page-wrap">
+  <header class="chapter-header">
+    <div class="chapter-num">ROZDZIAŁ 01</div>
+    <h1 class="chapter-title">Podstawy Javy</h1>
+    <p class="chapter-desc">Historia, składnia, typy danych, zmienne, operatory i struktura pierwszego programu. Fundament, na którym stoi wszystko inne.</p>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
+      <span class="badge purple">Java 8–21</span>
+      <span class="badge">Poziom: Początkujący</span>
+    </div>
+  </header>
+
+  <!-- 1.1 Historia -->
+  <h2 class="section-title">Historia Javy</h2>
+  <p class="prose">Java powstała w Sun Microsystems w 1991 roku. James Gosling zaprojektował język z myślą o urządzeniach wbudowanych, jednak prawdziwą popularność zyskał dzięki przeglądarkom internetowym. Oficjalna premiera odbyła się w <strong>1995 roku</strong> z hasłem przewodnim <em>"Write Once, Run Anywhere"</em>.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Rok</th><th>Wersja</th><th>Kluczowe zmiany</th></tr></thead>
+      <tbody>
+        <tr><td>1995</td><td>Java 1.0</td><td>Pierwsza publiczna wersja</td></tr>
+        <tr><td>2004</td><td>Java 5</td><td>Generics, Annotations, Autoboxing, for-each</td></tr>
+        <tr><td>2014</td><td>Java 8 (LTS)</td><td>Lambdy, Stream API, Optional, Date/Time API</td></tr>
+        <tr><td>2017</td><td>Java 9</td><td>Moduły JPMS, JShell</td></tr>
+        <tr><td>2021</td><td>Java 17 (LTS)</td><td>Sealed classes, Records (stable), Pattern Matching</td></tr>
+        <tr><td>2023</td><td>Java 21 (LTS)</td><td>Virtual Threads, Sequenced Collections, Pattern Matching switch</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout tip">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body"><strong>LTS (Long-Term Support)</strong> — wersje Java 8, 11, 17 i 21 są wersjami z długim wsparciem. W produkcji używaj zawsze wersji LTS.</div>
+  </div>
+
+  <!-- 1.2 Typy danych -->
+  <h2 class="section-title">Typy Danych Pierwotne</h2>
+  <p class="prose">Java posiada 8 typów pierwotnych (primitive types). Są przechowywane bezpośrednio na stosie — inaczej niż obiekty, które trafiają na stertę (heap).</p>
+
+  <div class="table-wrap">
+    <table class="type-table">
+      <thead><tr><th>Typ</th><th>Rozmiar</th><th>Zakres / Wartości</th><th>Przykład</th></tr></thead>
+      <tbody>
+        <tr><td>byte</td><td>8 bit</td><td>-128 do 127</td><td><code>byte b = 100;</code></td></tr>
+        <tr><td>short</td><td>16 bit</td><td>-32 768 do 32 767</td><td><code>short s = 30000;</code></td></tr>
+        <tr><td>int</td><td>32 bit</td><td>ok. ±2 mld</td><td><code>int i = 42;</code></td></tr>
+        <tr><td>long</td><td>64 bit</td><td>ok. ±9,2×10¹⁸</td><td><code>long l = 100L;</code></td></tr>
+        <tr><td>float</td><td>32 bit</td><td>6–7 cyfr dziesiętnych</td><td><code>float f = 3.14f;</code></td></tr>
+        <tr><td>double</td><td>64 bit</td><td>15–16 cyfr dziesiętnych</td><td><code>double d = 3.14;</code></td></tr>
+        <tr><td>boolean</td><td>—</td><td>true / false</td><td><code>boolean ok = true;</code></td></tr>
+        <tr><td>char</td><td>16 bit</td><td>Unicode 0–65 535</td><td><code>char c = 'A';</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-icon">⚠️</div>
+    <div class="callout-body"><strong>Obliczenia finansowe</strong> — nigdy nie używaj <code>float</code> ani <code>double</code> do pieniędzy. Używaj <code>BigDecimal</code>, który zapewnia precyzję dziesiętną bez błędów zaokrągleń.</div>
+  </div>
+
+  <!-- 1.3 Zmienne -->
+  <h2 class="section-title">Zmienne i Nazewnictwo</h2>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <span class="code-lang">Java</span>
+      <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button>
+    </div>
+    <pre><span class="cm">// Konwencje nazewnictwa Javy (camelCase)</span>
+<span class="kw">int</span> wiekUzytkownika = <span class="num">25</span>;          <span class="cm">// zmienna — camelCase</span>
+<span class="kw">final int</span> MAX_ROZMIAR = <span class="num">100</span>;       <span class="cm">// stała — UPPER_SNAKE_CASE</span>
+<span class="kw">String</span> imieNazwisko = <span class="str">"Jan Kowalski"</span>;
+
+<span class="cm">// var — inferencja typów (Java 10+)</span>
+<span class="kw">var</span> lista = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;<span class="cl">String</span>&gt;(); <span class="cm">// kompilator wie, że to ArrayList</span>
+<span class="kw">var</span> liczba = <span class="num">42</span>;                    <span class="cm">// int</span>
+
+<span class="cm">// Typ String — specjalny, niemutowalny obiekt</span>
+<span class="cl">String</span> a = <span class="str">"Hello"</span>;
+<span class="cl">String</span> b = <span class="str">"Hello"</span>;
+System.out.println(a == b);        <span class="cm">// true (string pool)</span>
+System.out.println(a.equals(b));   <span class="cm">// true — zawsze używaj equals()!</span>
+
+<span class="cl">String</span> c = <span class="kw">new</span> <span class="cl">String</span>(<span class="str">"Hello"</span>);
+System.out.println(a == c);        <span class="cm">// false — różne obiekty w pamięci</span>
+System.out.println(a.equals(c));   <span class="cm">// true — equals porównuje treść</span></pre>
+  </div>
+
+  <!-- 1.4 Operatory -->
+  <h2 class="section-title">Operatory</h2>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <span class="code-lang">Java</span>
+      <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button>
+    </div>
+    <pre><span class="cm">// Arytmetyczne</span>
+<span class="kw">int</span> suma = <span class="num">10</span> + <span class="num">3</span>;   <span class="cm">// 13</span>
+<span class="kw">int</span> rozn = <span class="num">10</span> - <span class="num">3</span>;   <span class="cm">// 7</span>
+<span class="kw">int</span> iloc = <span class="num">10</span> * <span class="num">3</span>;   <span class="cm">// 30</span>
+<span class="kw">int</span> ilorz = <span class="num">10</span> / <span class="num">3</span>;  <span class="cm">// 3  (dzielenie całkowite!)</span>
+<span class="kw">int</span> modulo = <span class="num">10</span> % <span class="num">3</span>; <span class="cm">// 1  (reszta z dzielenia)</span>
+
+<span class="cm">// Porównania — zwracają boolean</span>
+<span class="kw">boolean</span> wiekszy = <span class="num">5</span> &gt; <span class="num">3</span>;   <span class="cm">// true</span>
+<span class="kw">boolean</span> rowny   = <span class="num">5</span> == <span class="num">5</span>;  <span class="cm">// true</span>
+<span class="kw">boolean</span> nierowny = <span class="num">5</span> != <span class="num">4</span>; <span class="cm">// true</span>
+
+<span class="cm">// Logiczne</span>
+<span class="kw">boolean</span> i   = <span class="kw">true</span> &amp;&amp; <span class="kw">false</span>; <span class="cm">// false (AND)</span>
+<span class="kw">boolean</span> lub = <span class="kw">true</span> || <span class="kw">false</span>; <span class="cm">// true  (OR)</span>
+<span class="kw">boolean</span> nie = !<span class="kw">true</span>;          <span class="cm">// false (NOT)</span>
+
+<span class="cm">// Operator trójargumentowy (ternary)</span>
+<span class="kw">int</span> wiek = <span class="num">20</span>;
+<span class="cl">String</span> status = wiek &gt;= <span class="num">18</span> ? <span class="str">"dorosły"</span> : <span class="str">"niepełnoletni"</span>;</pre>
+  </div>
+
+  <!-- 1.5 Sterowanie przepływem -->
+  <h2 class="section-title">Sterowanie Przepływem</h2>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <span class="code-lang">Java</span>
+      <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button>
+    </div>
+    <pre><span class="cm">// if-else if-else</span>
+<span class="kw">int</span> ocena = <span class="num">85</span>;
+<span class="kw">if</span> (ocena >= <span class="num">90</span>) {
+    System.out.println(<span class="str">"Celujący"</span>);
+} <span class="kw">else if</span> (ocena >= <span class="num">75</span>) {
+    System.out.println(<span class="str">"Dobry"</span>);
+} <span class="kw">else</span> {
+    System.out.println(<span class="str">"Dostateczny"</span>);
+}
+
+<span class="cm">// Switch expression (Java 14+) — nowoczesny, bezpieczny</span>
+<span class="cl">String</span> dzien = <span class="str">"PONIEDZIALEK"</span>;
+<span class="cl">String</span> typ = <span class="kw">switch</span> (dzien) {
+    <span class="kw">case</span> <span class="str">"PONIEDZIALEK"</span>, <span class="str">"WTOREK"</span>, <span class="str">"SRODA"</span>,
+         <span class="str">"CZWARTEK"</span>, <span class="str">"PIATEK"</span> -&gt; <span class="str">"Dzień roboczy"</span>;
+    <span class="kw">case</span> <span class="str">"SOBOTA"</span>, <span class="str">"NIEDZIELA"</span> -&gt; <span class="str">"Weekend"</span>;
+    <span class="kw">default</span> -&gt; <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Nieznany dzień"</span>);
+};
+
+<span class="cm">// for — klasyczna pętla</span>
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; i++) {
+    System.out.println(i);
+}
+
+<span class="cm">// for-each — iteracja po kolekcjach</span>
+<span class="kw">int</span>[] liczby = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>};
+<span class="kw">for</span> (<span class="kw">int</span> n : liczby) {
+    System.out.println(n);
+}
+
+<span class="cm">// while</span>
+<span class="kw">int</span> x = <span class="num">0</span>;
+<span class="kw">while</span> (x &lt; <span class="num">3</span>) {
+    System.out.println(x++);
+}</pre>
+  </div>
+
+  <!-- 1.6 Pierwszy program -->
+  <h2 class="section-title">Struktura Pierwszego Programu</h2>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <span class="code-lang">HelloWorld.java</span>
+      <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button>
+    </div>
+    <pre><span class="cm">// Plik: HelloWorld.java</span>
+<span class="cm">// Nazwa pliku MUSI odpowiadać nazwie klasy publicznej</span>
+
+<span class="kw">public class</span> <span class="cl">HelloWorld</span> {
+
+    <span class="cm">// Punkt wejścia programu — zawsze taki sam podpis</span>
+    <span class="kw">public static void</span> <span class="mth">main</span>(<span class="cl">String</span>[] args) {
+
+        <span class="cm">// Wyświetlenie z nową linią</span>
+        System.out.<span class="mth">println</span>(<span class="str">"Hello, World!"</span>);
+
+        <span class="cm">// Bez nowej linii</span>
+        System.out.<span class="mth">print</span>(<span class="str">"Java "</span>);
+
+        <span class="cm">// Formatowanie (jak printf w C)</span>
+        System.out.<span class="mth">printf</span>(<span class="str">"wersja %d%n"</span>, <span class="num">21</span>);
+    }
+}
+
+<span class="cm">// Kompilacja i uruchomienie:</span>
+<span class="cm">// $ javac HelloWorld.java</span>
+<span class="cm">// $ java HelloWorld</span></pre>
+  </div>
+
+  <!-- Records -->
+  <h2 class="section-title">Records — Nowoczesne Klasy Danych (Java 16+)</h2>
+  <p class="prose">Record to specjalny rodzaj klasy przeznaczony do przechowywania niemutowalnych (immutable) danych. Kompilator automatycznie generuje konstruktor, gettery, <code>equals()</code>, <code>hashCode()</code> i <code>toString()</code>.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+      <span class="code-lang">Java 16+</span>
+      <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button>
+    </div>
+    <pre><span class="cm">// Jeden wiersz zastępuje 30+ linii tradycyjnej klasy</span>
+<span class="kw">public record</span> <span class="cl">Punkt</span>(<span class="kw">double</span> x, <span class="kw">double</span> y) {}
+
+<span class="cm">// Użycie</span>
+<span class="cl">Punkt</span> p = <span class="kw">new</span> <span class="cl">Punkt</span>(<span class="num">3.0</span>, <span class="num">4.0</span>);
+System.out.println(p.x());       <span class="cm">// 3.0</span>
+System.out.println(p.y());       <span class="cm">// 4.0</span>
+System.out.println(p);           <span class="cm">// Punkt[x=3.0, y=4.0]</span>
+
+<span class="cm">// Record z walidacją — kompaktowy konstruktor</span>
+<span class="kw">public record</span> <span class="cl">Osoba</span>(<span class="cl">String</span> imie, <span class="kw">int</span> wiek) {
+    <span class="kw">public</span> <span class="cl">Osoba</span> {
+        <span class="kw">if</span> (imie == <span class="kw">null</span> || imie.isBlank())
+            <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Imię nie może być puste"</span>);
+        <span class="kw">if</span> (wiek &lt; <span class="num">0</span> || wiek &gt; <span class="num">150</span>)
+            <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Nieprawidłowy wiek: "</span> + wiek);
+    }
+
+    <span class="cm">// Własne metody w recordzie</span>
+    <span class="kw">public boolean</span> <span class="mth">czyPelnoletni</span>() {
+        <span class="kw">return</span> wiek >= <span class="num">18</span>;
+    }
+}</pre>
+  </div>
+
+  <div class="callout good">
+    <div class="callout-icon">✅</div>
+    <div class="callout-body"><strong>Kiedy używać Records?</strong> Idealne dla DTO (Data Transfer Objects), value objects, wyników metod, odpowiedzi API. Wszędzie tam, gdzie potrzebujesz prostego kontenera danych bez logiki mutacji.</div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="chapter-nav">
+    <a href="index.html">
+      <div class="nav-dir">← Wróć</div>
+      <div class="nav-title">Strona główna</div>
+    </a>
+    <a href="02-oop.html" class="next">
+      <div class="nav-dir">Następny →</div>
+      <div class="nav-title">OOP — Programowanie Obiektowe</div>
+    </a>
+  </nav>
+</main>
+
+<footer class="site-footer">
+  Źródła: <a href="https://docs.oracle.com/en/java/" target="_blank">Oracle Docs</a> ·
+  <a href="https://baeldung.com" target="_blank">Baeldung</a> ·
+  <a href="https://freecodecamp.org" target="_blank">FreeCodeCamp</a>
+</footer>
+
+<script>
+function copyCode(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(()=>{
+    btn.textContent='Skopiowano!';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='Kopiuj';btn.classList.remove('ok')},2000);
+  });
+}
+</script>
+</body>
+</html>

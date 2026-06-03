@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 — JPA & Hibernate | Java Mastery</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-logo">java<span>.mastery</span></div>
+  <div class="topnav-links">
+    <a href="index.html">Strona główna</a>
+    <a href="09-maven-gradle.html">Maven/Gradle</a>
+    <a href="10-spring-core.html">Spring Core</a>
+    <a href="11-spring-boot.html">Spring Boot</a>
+    <a href="12-jpa.html" class="active">JPA</a>
+    <a href="13-security.html">Security</a>
+  </div>
+</nav>
+<div class="breadcrumb">
+  <a href="index.html">java.mastery</a><span class="sep">/</span>
+  <span class="current">12 — JPA & Hibernate</span>
+</div>
+<main class="page-wrap">
+  <header class="chapter-header">
+    <div class="chapter-num">ROZDZIAŁ 12</div>
+    <h1 class="chapter-title">JPA & Hibernate</h1>
+    <p class="chapter-desc">Java Persistence API — standard ORM w Javie. Hibernate to najpopularniejsza implementacja. Mapowanie obiektów na tabele, relacje, JPQL i Spring Data JPA.</p>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
+      <span class="badge purple">JPA 3.1</span>
+      <span class="badge blue">Hibernate 6</span>
+      <span class="badge">Poziom: Średniozaawansowany</span>
+    </div>
+  </header>
+
+  <h2 class="section-title">Encja — Mapowanie Klasy na Tabelę</h2>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">Produkt.java — encja JPA</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="ann">@Entity</span>
+<span class="ann">@Table</span>(name = <span class="str">"produkty"</span>)  <span class="cm">// nazwa tabeli w bazie</span>
+<span class="kw">public class</span> <span class="cl">Produkt</span> {
+
+    <span class="ann">@Id</span>
+    <span class="ann">@GeneratedValue</span>(strategy = <span class="cl">GenerationType</span>.<span class="ann">IDENTITY</span>)  <span class="cm">// AUTO_INCREMENT</span>
+    <span class="kw">private</span> <span class="cl">Long</span> id;
+
+    <span class="ann">@Column</span>(name = <span class="str">"nazwa"</span>, nullable = <span class="kw">false</span>, length = <span class="num">100</span>)
+    <span class="kw">private</span> <span class="cl">String</span> nazwa;
+
+    <span class="ann">@Column</span>(precision = <span class="num">10</span>, scale = <span class="num">2</span>)
+    <span class="kw">private</span> <span class="cl">BigDecimal</span> cena;
+
+    <span class="ann">@Column</span>(name = <span class="str">"stan_magazynowy"</span>)
+    <span class="kw">private int</span> stanMagazynowy;
+
+    <span class="ann">@CreationTimestamp</span>  <span class="cm">// Hibernate — automatycznie przy INSERT</span>
+    <span class="kw">private</span> <span class="cl">LocalDateTime</span> utworzono;
+
+    <span class="ann">@UpdateTimestamp</span>    <span class="cm">// Hibernate — automatycznie przy UPDATE</span>
+    <span class="kw">private</span> <span class="cl">LocalDateTime</span> zaktualizowano;
+
+    <span class="ann">@Version</span>            <span class="cm">// optimistic locking — zapobiega race condition</span>
+    <span class="kw">private</span> <span class="cl">Long</span> wersja;
+
+    <span class="cm">// Konstruktor bezargumentowy WYMAGANY przez JPA</span>
+    <span class="kw">protected</span> <span class="cl">Produkt</span>() {}
+
+    <span class="kw">public</span> <span class="cl">Produkt</span>(<span class="cl">String</span> nazwa, <span class="cl">BigDecimal</span> cena, <span class="kw">int</span> stan) {
+        <span class="kw">this</span>.nazwa = nazwa;
+        <span class="kw">this</span>.cena = cena;
+        <span class="kw">this</span>.stanMagazynowy = stan;
+    }
+    <span class="cm">// gettery i settery...</span>
+}</pre>
+  </div>
+
+  <h2 class="section-title">Relacje między Encjami</h2>
+
+  <div class="tabs-wrap">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="tab(this,'rel-one')">@ManyToOne</button>
+      <button class="tab-btn" onclick="tab(this,'rel-many')">@OneToMany</button>
+      <button class="tab-btn" onclick="tab(this,'rel-mm')">@ManyToMany</button>
+    </div>
+    <div id="rel-one" class="tab-panel active">
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span class="code-lang">Zamówienie → Użytkownik (wiele do jednego)</span>
+        <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+        <pre><span class="ann">@Entity</span>
+<span class="kw">public class</span> <span class="cl">Zamowienie</span> {
+    <span class="ann">@Id</span> <span class="ann">@GeneratedValue</span>(strategy = <span class="cl">GenerationType</span>.<span class="ann">IDENTITY</span>)
+    <span class="kw">private</span> <span class="cl">Long</span> id;
+
+    <span class="cm">// ✅ LAZY = załaduj użytkownika tylko gdy potrzebujesz</span>
+    <span class="ann">@ManyToOne</span>(fetch = <span class="cl">FetchType</span>.<span class="ann">LAZY</span>)
+    <span class="ann">@JoinColumn</span>(name = <span class="str">"uzytkownik_id"</span>)  <span class="cm">// klucz obcy w tabeli zamowienia</span>
+    <span class="kw">private</span> <span class="cl">Uzytkownik</span> uzytkownik;
+
+    <span class="ann">@Column</span>(nullable = <span class="kw">false</span>)
+    <span class="kw">private</span> <span class="cl">BigDecimal</span> lacznaKwota;
+}</pre>
+      </div>
+    </div>
+    <div id="rel-many" class="tab-panel">
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span class="code-lang">Użytkownik → Zamówienia (jeden do wielu)</span>
+        <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+        <pre><span class="ann">@Entity</span>
+<span class="kw">public class</span> <span class="cl">Uzytkownik</span> {
+    <span class="ann">@Id</span> <span class="ann">@GeneratedValue</span>(strategy = <span class="cl">GenerationType</span>.<span class="ann">IDENTITY</span>)
+    <span class="kw">private</span> <span class="cl">Long</span> id;
+
+    <span class="cm">// mappedBy = pole w Zamowienie które "posiada" relację</span>
+    <span class="ann">@OneToMany</span>(mappedBy = <span class="str">"uzytkownik"</span>,
+               cascade = <span class="cl">CascadeType</span>.<span class="ann">ALL</span>,
+               fetch = <span class="cl">FetchType</span>.<span class="ann">LAZY</span>,   <span class="cm">// ✅ ZAWSZE lazy dla kolekcji!</span>
+               orphanRemoval = <span class="kw">true</span>)
+    <span class="kw">private</span> <span class="cl">List</span>&lt;<span class="cl">Zamowienie</span>&gt; zamowienia = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
+
+    <span class="cm">// Helper methods — utrzymuj spójność obu stron relacji</span>
+    <span class="kw">public void</span> <span class="mth">dodajZamowienie</span>(<span class="cl">Zamowienie</span> z) {
+        zamowienia.<span class="mth">add</span>(z);
+        z.<span class="mth">setUzytkownik</span>(<span class="kw">this</span>);
+    }
+}</pre>
+      </div>
+    </div>
+    <div id="rel-mm" class="tab-panel">
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span class="code-lang">Produkt ↔ Kategoria (wiele do wielu)</span>
+        <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+        <pre><span class="ann">@Entity</span>
+<span class="kw">public class</span> <span class="cl">Produkt</span> {
+    <span class="cm">// ✅ Właściciel relacji definiuje tabelę łączącą</span>
+    <span class="ann">@ManyToMany</span>
+    <span class="ann">@JoinTable</span>(
+        name = <span class="str">"produkt_kategoria"</span>,
+        joinColumns = <span class="ann">@JoinColumn</span>(name = <span class="str">"produkt_id"</span>),
+        inverseJoinColumns = <span class="ann">@JoinColumn</span>(name = <span class="str">"kategoria_id"</span>)
+    )
+    <span class="kw">private</span> <span class="cl">Set</span>&lt;<span class="cl">Kategoria</span>&gt; kategorie = <span class="kw">new</span> <span class="cl">HashSet</span>&lt;&gt;();
+    <span class="cm">// Set zamiast List — unika duplikatów i problemu z HHH-000</span>
+}
+
+<span class="ann">@Entity</span>
+<span class="kw">public class</span> <span class="cl">Kategoria</span> {
+    <span class="ann">@ManyToMany</span>(mappedBy = <span class="str">"kategorie"</span>)
+    <span class="kw">private</span> <span class="cl">Set</span>&lt;<span class="cl">Produkt</span>&gt; produkty = <span class="kw">new</span> <span class="cl">HashSet</span>&lt;&gt;();
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Spring Data JPA — Repository</h2>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">ProduktRepo.java</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="cm">// JpaRepository daje CRUD za darmo: save, findById, findAll, delete...</span>
+<span class="kw">public interface</span> <span class="cl">ProduktRepo</span> <span class="kw">extends</span> <span class="cl">JpaRepository</span>&lt;<span class="cl">Produkt</span>, <span class="cl">Long</span>&gt; {
+
+    <span class="cm">// Spring generuje SQL automatycznie z nazwy metody!</span>
+    <span class="cl">List</span>&lt;<span class="cl">Produkt</span>&gt; <span class="mth">findByNazwaContainingIgnoreCase</span>(<span class="cl">String</span> fraza);
+    <span class="cl">List</span>&lt;<span class="cl">Produkt</span>&gt; <span class="mth">findByCenaLessThanOrderByCenaAsc</span>(<span class="cl">BigDecimal</span> max);
+    <span class="cl">Optional</span>&lt;<span class="cl">Produkt</span>&gt; <span class="mth">findByNazwaAndStanMagazynowyGreaterThan</span>(<span class="cl">String</span> nazwa, <span class="kw">int</span> min);
+    <span class="kw">boolean</span> <span class="mth">existsByNazwa</span>(<span class="cl">String</span> nazwa);
+    <span class="kw">long</span> <span class="mth">countByCenaLessThan</span>(<span class="cl">BigDecimal</span> cena);
+
+    <span class="cm">// Własne zapytanie JPQL (obiektowe, nie SQL!)</span>
+    <span class="ann">@Query</span>(<span class="str">"SELECT p FROM Produkt p WHERE p.cena BETWEEN :min AND :max"</span>)
+    <span class="cl">List</span>&lt;<span class="cl">Produkt</span>&gt; <span class="mth">znajdzWCenach</span>(<span class="ann">@Param</span>(<span class="str">"min"</span>) <span class="cl">BigDecimal</span> min,
+                               <span class="ann">@Param</span>(<span class="str">"max"</span>) <span class="cl">BigDecimal</span> max);
+
+    <span class="cm">// Natywny SQL gdy JPQL nie wystarczy</span>
+    <span class="ann">@Query</span>(value = <span class="str">"SELECT * FROM produkty WHERE stan_magazynowy = 0"</span>,
+           nativeQuery = <span class="kw">true</span>)
+    <span class="cl">List</span>&lt;<span class="cl">Produkt</span>&gt; <span class="mth">znajdzWyprzedane</span>();
+
+    <span class="cm">// Stronicowanie — Page zawiera metadane (total, pages...)</span>
+    <span class="cl">Page</span>&lt;<span class="cl">Produkt</span>&gt; <span class="mth">findAll</span>(<span class="cl">Pageable</span> pageable);
+}
+
+<span class="cm">// Użycie stronicowania w serwisie</span>
+<span class="cl">Pageable</span> strona = <span class="cl">PageRequest</span>.<span class="mth">of</span>(<span class="num">0</span>, <span class="num">20</span>, <span class="cl">Sort</span>.<span class="mth">by</span>(<span class="str">"cena"</span>).<span class="mth">ascending</span>());
+<span class="cl">Page</span>&lt;<span class="cl">Produkt</span>&gt; wyniki = repo.<span class="mth">findAll</span>(strona);</pre>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-icon">⚠️</div>
+    <div class="callout-body"><strong>Problem N+1</strong> — najczęstszy błąd z JPA. Gdy ładujesz listę encji i dla każdej lazily ładujesz relację, generujesz N+1 zapytań SQL. Rozwiązanie: <code>@EntityGraph</code> lub JOIN FETCH w JPQL.</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">Rozwiązanie problemu N+1</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="cm">// ❌ Problem N+1 — 1 zapytanie na listę + N na każdego użytkownika</span>
+<span class="cl">List</span>&lt;<span class="cl">Zamowienie</span>&gt; zamowienia = repo.<span class="mth">findAll</span>();
+zamowienia.<span class="mth">forEach</span>(z -> System.out.println(z.<span class="mth">getUzytkownik</span>().<span class="mth">getImie</span>()));
+
+<span class="cm">// ✅ JOIN FETCH — jedno zapytanie, ładuje wszystko naraz</span>
+<span class="ann">@Query</span>(<span class="str">"SELECT z FROM Zamowienie z JOIN FETCH z.uzytkownik"</span>)
+<span class="cl">List</span>&lt;<span class="cl">Zamowienie</span>&gt; <span class="mth">znajdzZUzytkownikami</span>();
+
+<span class="cm">// ✅ @EntityGraph — alternatywne podejście deklaratywne</span>
+<span class="ann">@EntityGraph</span>(attributePaths = {<span class="str">"uzytkownik"</span>})
+<span class="cl">List</span>&lt;<span class="cl">Zamowienie</span>&gt; <span class="mth">findAll</span>();</pre>
+  </div>
+
+  <h2 class="section-title">@Transactional — Transakcje</h2>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    <span class="code-lang">Transakcje w serwisie</span>
+    <button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="ann">@Service</span>
+<span class="kw">public class</span> <span class="cl">ZamowienieSerwis</span> {
+
+    <span class="cm">// Metody @Transactional — wszystkie zmiany commitowane razem</span>
+    <span class="cm">// lub rollback gdy wyjątek RuntimeException</span>
+    <span class="ann">@Transactional</span>
+    <span class="kw">public</span> <span class="cl">Zamowienie</span> <span class="mth">zloz</span>(<span class="cl">Long</span> uzytId, <span class="cl">List</span>&lt;<span class="cl">Long</span>&gt; produktyIds) {
+        <span class="kw">var</span> uzyt = uzytRepo.<span class="mth">findById</span>(uzytId)
+            .<span class="mth">orElseThrow</span>(() -> <span class="kw">new</span> <span class="cl">EntityNotFoundException</span>(<span class="str">"Brak użytkownika"</span>));
+
+        <span class="kw">var</span> produkty = prodRepo.<span class="mth">findAllById</span>(produktyIds);
+
+        <span class="cm">// Jeśli tu wyjątek — zmiany w bazie cofnięte automatycznie</span>
+        produkty.<span class="mth">forEach</span>(p -> p.<span class="mth">zmniejszStan</span>(<span class="num">1</span>));
+
+        <span class="kw">return</span> zamowRepo.<span class="mth">save</span>(<span class="kw">new</span> <span class="cl">Zamowienie</span>(uzyt, produkty));
+    }
+
+    <span class="cm">// readOnly = true — optymalizacja dla odczytów (brak dirty checking)</span>
+    <span class="ann">@Transactional</span>(readOnly = <span class="kw">true</span>)
+    <span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">ZamowienieDto</span>&gt; <span class="mth">znajdzDlaUzytkownika</span>(<span class="cl">Long</span> id) {
+        <span class="kw">return</span> zamowRepo.<span class="mth">findByUzytkownikId</span>(id)
+            .stream().<span class="mth">map</span>(mapper::<span class="mth">toDto</span>).<span class="mth">toList</span>();
+    }
+}</pre>
+  </div>
+
+  <nav class="chapter-nav">
+    <a href="11-spring-boot.html"><div class="nav-dir">← Poprzedni</div><div class="nav-title">Spring Boot</div></a>
+    <a href="13-security.html" class="next"><div class="nav-dir">Następny →</div><div class="nav-title">Spring Security</div></a>
+  </nav>
+</main>
+<footer class="site-footer">
+  Źródła: <a href="https://docs.spring.io/spring-data/jpa/docs/current/reference/html/" target="_blank">Spring Data JPA Docs</a> ·
+  <a href="https://baeldung.com/the-persistence-layer-with-spring-and-jpa" target="_blank">Baeldung JPA</a>
+</footer>
+<script>
+function copyCode(btn){const pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(()=>{btn.textContent='Skopiowano!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Kopiuj';btn.classList.remove('ok')},2000)});}
+function tab(btn,id){const wrap=btn.closest('.tabs-wrap');wrap.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));wrap.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById(id).classList.add('active');}
+</script>
+</body>
+</html>
