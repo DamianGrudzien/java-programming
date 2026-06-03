@@ -10,7 +10,7 @@
 <nav class="topnav">
   <div class="topnav-logo">java<span>.mastery</span></div>
   <div class="topnav-links">
-    <a href="index.html">Strona główna</a><a href="01-podstawy.html">Podstawy</a><a href="02-oop.html">OOP</a><a href="03-solid.html">SOLID</a><a href="04-wzorce.html">Wzorce</a><a href="05-collections.html" class="active">Kolekcje</a><a href="06-streams.html">Streams</a><a href="07-wyjatki-testy.html">Wyjątki & Testy</a><a href="08-zaawansowane.html">Zaawansowane</a>
+    <a href="index.html">Strona główna</a><a href="01-podstawy.html">Podstawy</a><a href="02-oop.html">OOP</a><a href="03-solid.html">SOLID</a><a href="04-wzorce.html">Wzorce</a><a href="05-collections.html" class="active">Kolekcje</a><a href="06-streams.html">Streams</a><a href="07-wyjatki-testy.html">Wyjątki & Testy</a><a href="08-zaawansowane.html">Zaawansowane</a><a href="09-maven-gradle.html">Maven/Gradle</a><a href="10-spring-core.html">Spring Core</a><a href="11-spring-boot.html">Spring Boot</a><a href="12-jpa.html">JPA</a><a href="13-security.html">Security</a>
   </div>
 </nav>
 <div class="breadcrumb"><a href="index.html">java.mastery</a><span class="sep">/</span><span class="current">05 — Kolekcje & Generics</span></div>
@@ -23,7 +23,7 @@
 
   <div class="callout tip">
     <div class="callout-icon">💡</div>
-    <div class="callout-body"><strong>Złota zasada:</strong> Zawsze deklaruj zmienną przez interfejs. <code>List&lt;String&gt; lista = new ArrayList&lt;&gt;();</code> ✅ — ułatwia podmianę implementacji bez zmiany reszty kodu.</div>
+    <div class="callout-body"><strong>Złota zasada:</strong> Zawsze deklaruj zmienną przez interfejs. <code>List&lt;String&gt; lista = new ArrayList&lt;&gt;();</code> ✅</div>
   </div>
 
   <h2 class="section-title">List — Listy</h2>
@@ -39,16 +39,13 @@
   </div>
   <div class="code-block">
     <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">List — dobre praktyki</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
-    <pre><span class="cm">// Niemodyfikowalna lista (Java 9+) — bezpieczna do zwracania z metod</span>
+    <pre><span class="cm">// Niemodyfikowalna lista (Java 9+)</span>
 <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; kolory = <span class="cl">List</span>.<span class="mth">of</span>(<span class="str">"czerwony"</span>, <span class="str">"zielony"</span>, <span class="str">"niebieski"</span>);
 
 <span class="cm">// Mutowalana lista ze wstępnymi elementami</span>
 <span class="cl">List</span>&lt;<span class="cl">Integer</span>&gt; liczby = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;(<span class="cl">List</span>.<span class="mth">of</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>));
 liczby.<span class="mth">add</span>(<span class="num">4</span>);
-liczby.<span class="mth">remove</span>(<span class="cl">Integer</span>.<span class="mth">valueOf</span>(<span class="num">2</span>)); <span class="cm">// usuwa wartość 2, nie indeks!</span>
-
-<span class="cm">// Kopiowanie listy</span>
-<span class="cl">List</span>&lt;<span class="cl">String</span>&gt; kopia = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;(kolory);</pre>
+liczby.<span class="mth">remove</span>(<span class="cl">Integer</span>.<span class="mth">valueOf</span>(<span class="num">2</span>)); <span class="cm">// usuwa wartość 2, nie indeks!</span></pre>
   </div>
 
   <h2 class="section-title">Map — Mapy klucz-wartość</h2>
@@ -59,7 +56,7 @@ liczby.<span class="mth">remove</span>(<span class="cl">Integer</span>.<span cla
         <tr><td><code>HashMap</code></td><td>O(1)</td><td>Brak</td><td>Domyślny wybór. Najszybszy.</td></tr>
         <tr><td><code>LinkedHashMap</code></td><td>O(1)</td><td>Wstawiania</td><td>Gdy potrzebujesz pamiętać kolejność.</td></tr>
         <tr><td><code>TreeMap</code></td><td>O(log n)</td><td>Naturalna kluczy</td><td>Gdy potrzebujesz posortowanych kluczy.</td></tr>
-        <tr><td><code>ConcurrentHashMap</code></td><td>O(1)</td><td>Brak</td><td>Bezpieczna wielowątkowo bez pełnej blokady.</td></tr>
+        <tr><td><code>ConcurrentHashMap</code></td><td>O(1)</td><td>Brak</td><td>Bezpieczna wielowątkowo.</td></tr>
       </tbody>
     </table>
   </div>
@@ -68,77 +65,45 @@ liczby.<span class="mth">remove</span>(<span class="cl">Integer</span>.<span cla
     <pre><span class="cl">Map</span>&lt;<span class="cl">String</span>, <span class="cl">Integer</span>&gt; licznik = <span class="kw">new</span> <span class="cl">HashMap</span>&lt;&gt;();
 
 <span class="cm">// merge — eleganckie zliczanie (Java 8+)</span>
-<span class="cl">String</span>[] slowa = {<span class="str">"java"</span>, <span class="str">"java"</span>, <span class="str">"python"</span>, <span class="str">"java"</span>};
+<span class="cl">String</span>[] slowa = {<span class="str">"java"</span>, <span class="str">"java"</span>, <span class="str">"python"</span>};
 <span class="kw">for</span> (<span class="cl">String</span> s : slowa) {
     licznik.<span class="mth">merge</span>(s, <span class="num">1</span>, <span class="cl">Integer</span>::<span class="mth">sum</span>);
 }
-<span class="cm">// {java=3, python=1}</span>
 
 <span class="cm">// getOrDefault — bezpieczne pobieranie</span>
-<span class="kw">int</span> ile = licznik.<span class="mth">getOrDefault</span>(<span class="str">"kotlin"</span>, <span class="num">0</span>); <span class="cm">// 0</span>
-
-<span class="cm">// computeIfAbsent — leniwe tworzenie wartości</span>
-<span class="cl">Map</span>&lt;<span class="cl">String</span>, <span class="cl">List</span>&lt;<span class="cl">String</span>&gt;&gt; grupy = <span class="kw">new</span> <span class="cl">HashMap</span>&lt;&gt;();
-grupy.<span class="mth">computeIfAbsent</span>(<span class="str">"backend"</span>, k -> <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;())
-     .<span class="mth">add</span>(<span class="str">"Spring"</span>);
+<span class="kw">int</span> ile = licznik.<span class="mth">getOrDefault</span>(<span class="str">"kotlin"</span>, <span class="num">0</span>);
 
 <span class="cm">// Niemodyfikowalna mapa (Java 9+)</span>
-<span class="cl">Map</span>&lt;<span class="cl">String</span>, <span class="cl">Integer</span>&gt; kody = <span class="cl">Map</span>.<span class="mth">of</span>(<span class="str">"HTTP_OK"</span>, <span class="num">200</span>, <span class="str">"NOT_FOUND"</span>, <span class="num">404</span>);
-
-<span class="cm">// Iteracja po mapie</span>
-kody.<span class="mth">forEach</span>((klucz, wartosc) ->
-    System.out.<span class="mth">printf</span>(<span class="str">"%s = %d%n"</span>, klucz, wartosc));</pre>
+<span class="cl">Map</span>&lt;<span class="cl">String</span>, <span class="cl">Integer</span>&gt; kody = <span class="cl">Map</span>.<span class="mth">of</span>(<span class="str">"HTTP_OK"</span>, <span class="num">200</span>, <span class="str">"NOT_FOUND"</span>, <span class="num">404</span>);</pre>
   </div>
 
   <h2 class="section-title">Set — Zbiory unikalne</h2>
   <div class="cards">
-    <div class="card">
-      <div class="card-icon">🔵</div>
-      <div class="card-title">HashSet</div>
-      <div class="card-body">O(1) add/contains/remove. Brak duplikatów, brak kolejności. Wymaga poprawnego <code>equals()</code> i <code>hashCode()</code>.</div>
-      <div class="card-tag">Domyślny wybór</div>
-    </div>
-    <div class="card">
-      <div class="card-icon">🟡</div>
-      <div class="card-title">LinkedHashSet</div>
-      <div class="card-body">Jak HashSet, ale zachowuje kolejność wstawiania. Minimalny narzut wydajnościowy.</div>
-      <div class="card-tag">Z kolejnością</div>
-    </div>
-    <div class="card">
-      <div class="card-icon">🟢</div>
-      <div class="card-title">TreeSet</div>
-      <div class="card-body">Elementy automatycznie posortowane (naturalnie lub przez Comparator). Operacje O(log n).</div>
-      <div class="card-tag">Posortowany</div>
-    </div>
+    <div class="card"><div class="card-icon">🔵</div><div class="card-title">HashSet</div><div class="card-body">O(1) add/contains/remove. Brak duplikatów, brak kolejności.</div><div class="card-tag">Domyślny wybór</div></div>
+    <div class="card"><div class="card-icon">🟡</div><div class="card-title">LinkedHashSet</div><div class="card-body">Jak HashSet, ale zachowuje kolejność wstawiania.</div><div class="card-tag">Z kolejnością</div></div>
+    <div class="card"><div class="card-icon">🟢</div><div class="card-title">TreeSet</div><div class="card-body">Elementy automatycznie posortowane. Operacje O(log n).</div><div class="card-tag">Posortowany</div></div>
   </div>
 
   <h2 class="section-title">Generics — Typy Generyczne</h2>
-  <p class="prose">Generics pozwalają pisać kod, który działa z różnymi typami przy zachowaniu bezpieczeństwa typów w czasie kompilacji.</p>
   <div class="code-block">
     <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Generics</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
-    <pre><span class="cm">// Generyczna klasa — działa z dowolnym typem T</span>
-<span class="kw">public class</span> <span class="cl">Para</span>&lt;<span class="cl">A</span>, <span class="cl">B</span>&gt; {
+    <pre><span class="kw">public class</span> <span class="cl">Para</span>&lt;<span class="cl">A</span>, <span class="cl">B</span>&gt; {
     <span class="kw">private final</span> <span class="cl">A</span> pierwszy;
     <span class="kw">private final</span> <span class="cl">B</span> drugi;
 
-    <span class="kw">public</span> <span class="cl">Para</span>(<span class="cl">A</span> a, <span class="cl">B</span> b) { pierwszy = a; drugi = b; }
+    <span class="kw">public</span> <span class="cl">Para</span>(<span class="cl">A</span> a, <span class="cl">B</span> b) { pierwszy=a; drugi=b; }
     <span class="kw">public</span> <span class="cl">A</span> <span class="mth">pierwszy</span>() { <span class="kw">return</span> pierwszy; }
     <span class="kw">public</span> <span class="cl">B</span> <span class="mth">drugi</span>()    { <span class="kw">return</span> drugi; }
 
-    <span class="cm">// Statyczna metoda fabrykująca</span>
     <span class="kw">public static</span> &lt;<span class="cl">A</span>, <span class="cl">B</span>&gt; <span class="cl">Para</span>&lt;<span class="cl">A</span>, <span class="cl">B</span>&gt; <span class="mth">of</span>(<span class="cl">A</span> a, <span class="cl">B</span> b) {
         <span class="kw">return new</span> <span class="cl">Para</span>&lt;&gt;(a, b);
     }
 }
 
-<span class="cl">Para</span>&lt;<span class="cl">String</span>, <span class="cl">Integer</span>&gt; p = <span class="cl">Para</span>.<span class="mth">of</span>(<span class="str">"wiek"</span>, <span class="num">25</span>);
-
-<span class="cm">// Bounded wildcards — dla metod z ograniczeniami</span>
-<span class="cm">// ? extends T — może być T lub podtyp T (producent)</span>
+<span class="cm">// Bounded wildcards</span>
 <span class="kw">public double</span> <span class="mth">sumujLiczby</span>(<span class="cl">List</span>&lt;? <span class="kw">extends</span> <span class="cl">Number</span>&gt; lista) {
     <span class="kw">return</span> lista.stream().<span class="mth">mapToDouble</span>(<span class="cl">Number</span>::<span class="mth">doubleValue</span>).<span class="mth">sum</span>();
-}
-<span class="cm">// Działa z List&lt;Integer&gt;, List&lt;Double&gt;, List&lt;Long&gt;...</span></pre>
+}</pre>
   </div>
 
   <nav class="chapter-nav">

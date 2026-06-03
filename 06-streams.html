@@ -10,7 +10,7 @@
 <nav class="topnav">
   <div class="topnav-logo">java<span>.mastery</span></div>
   <div class="topnav-links">
-    <a href="index.html">Strona główna</a><a href="01-podstawy.html">Podstawy</a><a href="02-oop.html">OOP</a><a href="03-solid.html">SOLID</a><a href="04-wzorce.html">Wzorce</a><a href="05-collections.html">Kolekcje</a><a href="06-streams.html" class="active">Streams</a><a href="07-wyjatki-testy.html">Wyjątki & Testy</a><a href="08-zaawansowane.html">Zaawansowane</a>
+    <a href="index.html">Strona główna</a><a href="01-podstawy.html">Podstawy</a><a href="02-oop.html">OOP</a><a href="03-solid.html">SOLID</a><a href="04-wzorce.html">Wzorce</a><a href="05-collections.html">Kolekcje</a><a href="06-streams.html" class="active">Streams</a><a href="07-wyjatki-testy.html">Wyjątki & Testy</a><a href="08-zaawansowane.html">Zaawansowane</a><a href="09-maven-gradle.html">Maven/Gradle</a><a href="10-spring-core.html">Spring Core</a><a href="11-spring-boot.html">Spring Boot</a><a href="12-jpa.html">JPA</a><a href="13-security.html">Security</a>
   </div>
 </nav>
 <div class="breadcrumb"><a href="index.html">java.mastery</a><span class="sep">/</span><span class="current">06 — Streams, Lambdy & Optional</span></div>
@@ -18,11 +18,10 @@
   <header class="chapter-header">
     <div class="chapter-num">ROZDZIAŁ 06</div>
     <h1 class="chapter-title">Streams, Lambdy<br>& Optional</h1>
-    <p class="chapter-desc">Programowanie funkcyjne w Javie 8+. Stream API pozwala przetwarzać kolekcje deklaratywnie, zwięźle i wydajnie — z opcją równoległego przetwarzania.</p>
+    <p class="chapter-desc">Programowanie funkcyjne w Javie 8+. Stream API pozwala przetwarzać kolekcje deklaratywnie, zw ięźle i wydajnie.</p>
   </header>
 
   <h2 class="section-title">Wyrażenia Lambda</h2>
-  <p class="prose">Lambda to skrócona forma anonimowej klasy implementującej <strong>interfejs funkcyjny</strong> (interfejs z jedną metodą abstrakcyjną). Składnia: <code>(parametry) -&gt; { ciało }</code>.</p>
   <div class="code-block">
     <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Lambda — ewolucja składni</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
     <pre><span class="cm">// Przed Java 8 — anonimowa klasa</span>
@@ -33,120 +32,54 @@
 <span class="cm">// Java 8+ — lambda</span>
 <span class="cl">Comparator</span>&lt;<span class="cl">String</span>&gt; comp2 = (a, b) -> a.<span class="mth">compareTo</span>(b);
 
-<span class="cm">// Java 8+ — referencja do metody (jeszcze krócej!)</span>
+<span class="cm">// Java 8+ — referencja do metody</span>
 <span class="cl">Comparator</span>&lt;<span class="cl">String</span>&gt; comp3 = <span class="cl">String</span>::<span class="mth">compareTo</span>;
 
-<span class="cm">// Wbudowane interfejsy funkcyjne (java.util.function)</span>
+<span class="cm">// Wbudowane interfejsy funkcyjne</span>
 <span class="cl">Predicate</span>&lt;<span class="cl">String</span>&gt; czyDlugi = s -> s.<span class="mth">length</span>() > <span class="num">5</span>;
 <span class="cl">Function</span>&lt;<span class="cl">String</span>, <span class="cl">Integer</span>&gt; dlugosc = <span class="cl">String</span>::<span class="mth">length</span>;
 <span class="cl">Consumer</span>&lt;<span class="cl">String</span>&gt; drukuj = System.out::println;
-<span class="cl">Supplier</span>&lt;<span class="cl">List</span>&lt;<span class="cl">String</span>&gt;&gt; nowaLista = <span class="cl">ArrayList</span>::<span class="kw">new</span>;
-<span class="cl">BiFunction</span>&lt;<span class="cl">Integer</span>, <span class="cl">Integer</span>, <span class="cl">Integer</span>&gt; suma = <span class="cl">Integer</span>::<span class="mth">sum</span>;</pre>
+<span class="cl">Supplier</span>&lt;<span class="cl">List</span>&lt;<span class="cl">String</span>&gt;&gt; nowaLista = <span class="cl">ArrayList</span>::<span class="kw">new</span>;</pre>
   </div>
 
   <h2 class="section-title">Pipeline Stream API</h2>
-  <p class="prose">Stream przetwarza dane w potoku: <strong>source → operacje pośrednie → operacja terminalna</strong>. Operacje pośrednie są <em>leniwe</em> — nie wykonują się aż do operacji terminalnej.</p>
   <div class="code-block">
-    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Stream Pipeline — kompletny przykład</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Stream Pipeline</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
     <pre><span class="kw">record</span> <span class="cl">Pracownik</span>(<span class="cl">String</span> imie, <span class="cl">String</span> dzial, <span class="kw">double</span> pensja) {}
 
 <span class="cl">List</span>&lt;<span class="cl">Pracownik</span>&gt; pracownicy = <span class="cl">List</span>.<span class="mth">of</span>(
     <span class="kw">new</span> <span class="cl">Pracownik</span>(<span class="str">"Anna"</span>,  <span class="str">"IT"</span>, <span class="num">8500</span>),
     <span class="kw">new</span> <span class="cl">Pracownik</span>(<span class="str">"Bartek"</span>,<span class="str">"IT"</span>, <span class="num">9200</span>),
-    <span class="kw">new</span> <span class="cl">Pracownik</span>(<span class="str">"Celina"</span>,<span class="str">"HR"</span>, <span class="num">6100</span>),
-    <span class="kw">new</span> <span class="cl">Pracownik</span>(<span class="str">"Dawid"</span>, <span class="str">"HR"</span>, <span class="num">6800</span>),
-    <span class="kw">new</span> <span class="cl">Pracownik</span>(<span class="str">"Ewa"</span>,   <span class="str">"IT"</span>, <span class="num">7700</span>)
+    <span class="kw">new</span> <span class="cl">Pracownik</span>(<span class="str">"Celina"</span>,<span class="str">"HR"</span>, <span class="num">6100</span>)
 );
 
-<span class="cm">// 1. Imiona pracowników IT posortowane malejąco po pensji</span>
+<span class="cm">// Imiona pracowników IT posortowane malejąco po pensji</span>
 <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; itNajlepsi = pracownicy.<span class="mth">stream</span>()
     .<span class="mth">filter</span>(p -> p.dzial().<span class="mth">equals</span>(<span class="str">"IT"</span>))
     .<span class="mth">sorted</span>(<span class="cl">Comparator</span>.<span class="mth">comparingDouble</span>(<span class="cl">Pracownik</span>::pensja).<span class="mth">reversed</span>())
     .<span class="mth">map</span>(<span class="cl">Pracownik</span>::imie)
-    .<span class="mth">toList</span>(); <span class="cm">// Java 16+ — [Bartek, Anna, Ewa]</span>
+    .<span class="mth">toList</span>();
 
-<span class="cm">// 2. Średnia pensja w firmie</span>
-<span class="kw">double</span> srednia = pracownicy.<span class="mth">stream</span>()
-    .<span class="mth">mapToDouble</span>(<span class="cl">Pracownik</span>::pensja)
-    .<span class="mth">average</span>()
-    .<span class="mth">orElseThrow</span>();
-
-<span class="cm">// 3. Grupowanie po dziale</span>
+<span class="cm">// Grupowanie po dziale</span>
 <span class="cl">Map</span>&lt;<span class="cl">String</span>, <span class="cl">List</span>&lt;<span class="cl">Pracownik</span>&gt;&gt; poDziale = pracownicy.<span class="mth">stream</span>()
-    .<span class="mth">collect</span>(<span class="cl">Collectors</span>.<span class="mth">groupingBy</span>(<span class="cl">Pracownik</span>::dzial));
-
-<span class="cm">// 4. Suma pensji per dział</span>
-<span class="cl">Map</span>&lt;<span class="cl">String</span>, <span class="cl">Double</span>&gt; sumaPerDzial = pracownicy.<span class="mth">stream</span>()
-    .<span class="mth">collect</span>(<span class="cl">Collectors</span>.<span class="mth">groupingBy</span>(
-        <span class="cl">Pracownik</span>::dzial,
-        <span class="cl">Collectors</span>.<span class="mth">summingDouble</span>(<span class="cl">Pracownik</span>::pensja)
-    ));
-
-<span class="cm">// 5. Czy wszyscy w IT zarabiają powyżej 7000?</span>
-<span class="kw">boolean</span> wszyscyDobrze = pracownicy.<span class="mth">stream</span>()
-    .<span class="mth">filter</span>(p -> p.dzial().<span class="mth">equals</span>(<span class="str">"IT"</span>))
-    .<span class="mth">allMatch</span>(p -> p.pensja() > <span class="num">7000</span>); <span class="cm">// false (Ewa ma 7700 &gt; 7000 ✓, ale sprawdź Annę)</span>
-
-<span class="cm">// 6. flatMap — spłaszczanie</span>
-<span class="cl">List</span>&lt;<span class="cl">List</span>&lt;<span class="cl">Integer</span>&gt;&gt; zagniezdzone = <span class="cl">List</span>.<span class="mth">of</span>(
-    <span class="cl">List</span>.<span class="mth">of</span>(<span class="num">1</span>,<span class="num">2</span>), <span class="cl">List</span>.<span class="mth">of</span>(<span class="num">3</span>,<span class="num">4</span>), <span class="cl">List</span>.<span class="mth">of</span>(<span class="num">5</span>)
-);
-<span class="cl">List</span>&lt;<span class="cl">Integer</span>&gt; plaskie = zagniezdzone.<span class="mth">stream</span>()
-    .<span class="mth">flatMap</span>(<span class="cl">Collection</span>::<span class="mth">stream</span>)
-    .<span class="mth">toList</span>(); <span class="cm">// [1, 2, 3, 4, 5]</span></pre>
+    .<span class="mth">collect</span>(<span class="cl">Collectors</span>.<span class="mth">groupingBy</span>(<span class="cl">Pracownik</span>::dzial));</pre>
   </div>
 
   <div class="callout warn">
     <div class="callout-icon">⚠️</div>
-    <div class="callout-body"><strong>Stream można użyć tylko raz!</strong> Po operacji terminalnej stream jest wyczerpany. Chcesz przetworzyć ponownie? Stwórz nowy stream z kolekcji. Operacje pośrednie są leniwe — nie wykonują się bez terminala.</div>
+    <div class="callout-body"><strong>Stream można użyć tylko raz!</strong> Po operacji terminalnej stream jest wyczerpany.</div>
   </div>
 
   <h2 class="section-title">Optional — eliminacja NullPointerException</h2>
   <div class="code-block">
     <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Optional — dobre praktyki</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
-    <pre><span class="cm">// ❌ Tradycyjnie — ryzyko NPE</span>
-<span class="cl">Uzytkownik</span> u = repo.<span class="mth">znajdz</span>(id); <span class="cm">// może zwrócić null!</span>
-System.out.<span class="mth">println</span>(u.<span class="mth">getImie</span>()); <span class="cm">// NPE jeśli u == null</span>
-
-<span class="cm">// ✅ Z Optional — bezpieczne i deklaratywne</span>
-<span class="cm">// Metoda zwraca Optional&lt;Uzytkownik&gt;</span>
+    <pre><span class="cm">// ✅ Z Optional — bezpieczne i deklaratywne</span>
 <span class="cl">Optional</span>&lt;<span class="cl">Uzytkownik</span>&gt; opt = repo.<span class="mth">znajdz</span>(id);
 
-<span class="cm">// Różne sposoby wyciągnięcia wartości</span>
-opt.<span class="mth">ifPresent</span>(u -> System.out.<span class="mth">println</span>(u.<span class="mth">getImie</span>()));   <span class="cm">// jeśli istnieje</span>
-<span class="cl">String</span> imie = opt.<span class="mth">map</span>(<span class="cl">Uzytkownik</span>::getImie)
-                  .<span class="mth">orElse</span>(<span class="str">"Anonim"</span>);                    <span class="cm">// wartość domyślna</span>
-<span class="cl">Uzytkownik</span> u2 = opt.<span class="mth">orElseThrow</span>(                       <span class="cm">// wyjątek gdy brak</span>
-    () -> <span class="kw">new</span> <span class="cl">EntityNotFoundException</span>(<span class="str">"id="</span> + id));
-
-<span class="cm">// Łańcuch operacji — jak Stream</span>
-<span class="cl">String</span> email = opt
-    .<span class="mth">filter</span>(<span class="cl">Uzytkownik</span>::<span class="mth">isAktywny</span>)
-    .<span class="mth">map</span>(<span class="cl">Uzytkownik</span>::getEmail)
-    .<span class="mth">map</span>(<span class="cl">String</span>::toLowerCase)
-    .<span class="mth">orElse</span>(<span class="str">"brak@email.com"</span>);
-
-<span class="cm">// ❌ ANTY-WZORZEC — nigdy tak!</span>
-<span class="kw">if</span> (opt.<span class="mth">isPresent</span>()) { opt.<span class="mth">get</span>(); } <span class="cm">// to samo co null-check...</span></pre>
-  </div>
-
-  <div class="callout good">
-    <div class="callout-icon">✅</div>
-    <div class="callout-body"><strong>Kiedy używać Optional?</strong> Jako typ zwracany z metod, które mogą nie znaleźć wartości (np. metody repo). <strong>Nie</strong> jako pola klas, <strong>nie</strong> w parametrach metod.</div>
-  </div>
-
-  <h2 class="section-title">Parallel Streams</h2>
-  <div class="code-block">
-    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Parallel Stream</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
-    <pre><span class="cm">// Równoległe przetwarzanie — jedyna zmiana to parallelStream()</span>
-<span class="kw">long</span> suma = <span class="cl">LongStream</span>.<span class="mth">rangeClosed</span>(<span class="num">1</span>, <span class="num">1_000_000</span>)
-    .<span class="mth">parallel</span>()
-    .<span class="mth">sum</span>(); <span class="cm">// automatycznie na wielu rdzeniach!</span>
-
-<span class="cm">// ⚠️ Uważaj: parallel nie zawsze szybszy!</span>
-<span class="cm">// Opłacalny dla: dużych danych (>10k), drogie operacje CPU,</span>
-<span class="cm">// operacje bez efektów ubocznych (pure functions)</span>
-<span class="cm">// Nieopłacalny dla: małych kolekcji, I/O, operacji z synchronizacją</span></pre>
+opt.<span class="mth">ifPresent</span>(u -> System.out.<span class="mth">println</span>(u.<span class="mth">getImie</span>()));
+<span class="cl">String</span> imie = opt.<span class="mth">map</span>(<span class="cl">Uzytkownik</span>::getImie).<span class="mth">orElse</span>(<span class="str">"Anonim"</span>);
+<span class="cl">Uzytkownik</span> u2 = opt.<span class="mth">orElseThrow</span>(
+    () -> <span class="kw">new</span> <span class="cl">EntityNotFoundException</span>(<span class="str">"id="</span> + id));</pre>
   </div>
 
   <nav class="chapter-nav">
