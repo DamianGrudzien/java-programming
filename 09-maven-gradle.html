@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>09 — Maven &amp; Gradle | Java Mastery</title>
+<meta name="description" content="Maven i Gradle w Javie — pom.xml, build.gradle, cykl życia buildu, zarządzanie zależnościami. Kiedy wybrać Maven vs Gradle.">
+<meta property="og:title" content="09 — Maven &amp; Gradle | Java Mastery">
+<meta property="og:description" content="Maven i Gradle w Javie — pom.xml, build.gradle i zarządzanie zależnościami.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Java Mastery">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -43,7 +48,7 @@
   </header>
 
   <h2 class="section-title">Maven — Struktura Projektu</h2>
-  <p class="prose">Maven narzuca <strong>konwencję nad konfiguracją</strong> — standardową strukturę katalogów. Jeśli jej przestrzegasz, Maven "wie" gdzie szukać kodu, testów i zasobów.</p>
+  <p class="prose">Maven narzuca <strong>konwencję nad konfiguracją</strong> — standardową strukturę katalogów. Jeśli jej przestrzegasz, Maven „wie” gdzie szukać kodu, testów i zasobów.</p>
 
   <div class="code-block">
     <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
@@ -135,7 +140,7 @@
     <pre><span class="cm"># Zbuduj i uruchom testy</span>
 mvn clean package
 
-<span class="cm"># Pomiń testy (szybszy build)</span>
+<span class="cm"># Pominąć testy (szybszy build)</span>
 mvn clean package -DskipTests
 
 <span class="cm"># Uruchom tylko jeden test</span>
@@ -261,7 +266,7 @@ test {
     <table>
       <thead><tr><th>Kryterium</th><th>Maven</th><th>Gradle</th></tr></thead>
       <tbody>
-        <tr><td>Format konfiguracji</td><td>XML (verbose)</td><td>Kotlin/Groovy DSL (zw ięzły)</td></tr>
+        <tr><td>Format konfiguracji</td><td>XML (verbose)</td><td>Kotlin/Groovy DSL (zwieźły)</td></tr>
         <tr><td>Prędkość buildu</td><td>Wolniejszy</td><td>Szybszy (incremental, cache)</td></tr>
         <tr><td>Dojrzałość</td><td>Bardzo dojrzały (2004)</td><td>Dojrzały (2012)</td></tr>
         <tr><td>Ekosystem Spring</td><td>✅ Bardzo popularny</td><td>✅ Domyślny w Initializr</td></tr>
@@ -281,7 +286,7 @@ test {
   <a href="https://docs.gradle.org/current/userguide/userguide.html" target="_blank">Gradle Docs</a>
 </footer>
 <script>
-function copyCode(btn){const pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(()=>{btn.textContent='Skopiowano!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Kopiuj';btn.classList.remove('ok')},2000));}
+function copyCode(btn){const pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(()=>{btn.textContent='Skopiowano!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Kopiuj';btn.classList.remove('ok')},2000)});}
 function tab(btn,id){const wrap=btn.closest('.tabs-wrap');wrap.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));wrap.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById(id).classList.add('active');}
 </script>
 </body>

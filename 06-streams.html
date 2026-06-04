@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>06 — Streams &amp; Lambdy | Java Mastery</title>
+<meta name="description" content="Stream API, lambdy i Optional w Javie 8+ — filtrowanie, mapowanie, Collectors, flatMap, reduce. Programowanie funkcyjne w praktyce.">
+<meta property="og:title" content="06 — Streams, Lambdy &amp; Optional | Java Mastery">
+<meta property="og:description" content="Stream API, lambdy i Optional w Javie 8+ — Collectors, flatMap i reduce.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Java Mastery">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,10 +23,10 @@
   <header class="chapter-header">
     <div class="chapter-num">ROZDZIAŁ 06</div>
     <h1 class="chapter-title">Streams, Lambdy<br>&amp; Optional</h1>
-    <p class="chapter-desc">Programowanie funkcyjne w Javie 8+. Stream API pozwala przetwarzać kolekcje deklaratywnie, zw ięźle i wydajnie.</p>
+    <p class="chapter-desc">Programowanie funkcyjne w Javie 8+. Stream API pozwala przetwarzać kolekcje deklaratywnie, zwieźle i wydajnie.</p>
     <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
       <span class="badge">Java 8+</span>
-      <span class="badge">Poziom: Średniozaawansowany</span>
+      <span class="badge">Poziom: Średnio­zaĂawansowany</span>
     </div>
   </header>
 
@@ -47,7 +52,7 @@
   </div>
 
   <h2 class="section-title">Pipeline Stream API</h2>
-  <p class="prose">Stream to sekwencja elementów przetwarzana leniwie (lazy). Pipeline składa się z źródła, operacji pośrednich (map, filter, sorted) i jednej operacji terminalnej (collect, forEach, reduce).</p>
+  <p class="prose">Stream to sekwencja elementów przetwarzana leniwie (lazy). Pipeline składa się ze źródła, operacji pośrednich (map, filter, sorted) i jednej operacji terminalnej (collect, forEach, reduce).</p>
   <div class="code-block">
     <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Stream Pipeline</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
     <pre><span class="kw">record</span> <span class="cl">Pracownik</span>(<span class="cl">String</span> imie, <span class="cl">String</span> dzial, <span class="kw">double</span> pensja) {}
