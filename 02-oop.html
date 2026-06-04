@@ -17,7 +17,7 @@
     <a href="04-wzorce.html">Wzorce</a>
     <a href="05-collections.html">Kolekcje</a>
     <a href="06-streams.html">Streams</a>
-    <a href="07-wyjatki-testy.html">Wyjątki & Testy</a>
+    <a href="07-wyjatki-testy.html">Wyjątki &amp; Testy</a>
     <a href="08-zaawansowane.html">Zaawansowane</a>
     <a href="09-maven-gradle.html">Maven/Gradle</a>
     <a href="10-spring-core.html">Spring Core</a>
@@ -36,6 +36,10 @@
     <div class="chapter-num">ROZDZIAŁ 02</div>
     <h1 class="chapter-title">Programowanie Obiektowe</h1>
     <p class="chapter-desc">Klasy, obiekty, cztery filary OOP — enkapsulacja, dziedziczenie, polimorfizm, abstrakcja. Interfejsy i kiedy je stosować zamiast dziedziczenia.</p>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
+      <span class="badge">Java 8–21</span>
+      <span class="badge">Poziom: Podstawowy</span>
+    </div>
   </header>
 
   <h2 class="section-title">Klasa i Obiekt</h2>
@@ -61,7 +65,7 @@
 
     <span class="cm">// Metody (methods) — zachowanie obiektu</span>
     <span class="kw">public void</span> <span class="mth">wplac</span>(<span class="kw">double</span> kwota) {
-        <span class="kw">if</span> (kwota &lt;= <span class="num">0</span>) <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Kwota > 0"</span>);
+        <span class="kw">if</span> (kwota &lt;= <span class="num">0</span>) <span class="kw">throw new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"Kwota &gt; 0"</span>);
         saldo += kwota;
     }
 
@@ -220,7 +224,7 @@ pojazdy.<span class="mth">add</span>(<span class="kw">new</span> <span class="cl
 }
 
 <span class="cm">// Implementacja jako lambda</span>
-<span class="cl">Walidator</span>&lt;<span class="cl">String</span>&gt; emailValidator = s -> s.<span class="mth">contains</span>(<span class="str">"@"</span>) && s.<span class="mth">contains</span>(<span class="str">"."</span>);
+<span class="cl">Walidator</span>&lt;<span class="cl">String</span>&gt; emailValidator = s -> s.<span class="mth">contains</span>(<span class="str">"@"</span>) &amp;&amp; s.<span class="mth">contains</span>(<span class="str">"."</span>);
 System.out.<span class="mth">println</span>(emailValidator.<span class="mth">waliduj</span>(<span class="str">"jan@example.com"</span>)); <span class="cm">// true</span></pre>
   </div>
 
