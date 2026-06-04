@@ -2,6 +2,8 @@
 
 Kompletny przewodnik po dobrych praktykach w Javie — od składni po Spring Boot.
 
+🔗 **Live:** [damiangrudzien.github.io/java-programming](https://damiangrudzien.github.io/java-programming/)
+
 ## Rozdziały
 
 | # | Temat | Poziom |
