@@ -4,20 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>08 — Zaawansowane | Java Mastery</title>
+<meta name="description" content="Zaawansowana Java — JVM, Garbage Collection, wielowątkowość, Virtual Threads (Java 21) i zasady Clean Code z przykładami refaktoringu.">
+<meta property="og:title" content="08 — Zaawansowane — JVM &amp; Concurrency | Java Mastery">
+<meta property="og:description" content="JVM, wielowątkowość, Virtual Threads i Clean Code — zaawansowane tematy Javy.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Java Mastery">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <nav class="topnav">
   <div class="topnav-logo">java<span>.mastery</span></div>
   <div class="topnav-links">
-    <a href="index.html">Strona główna</a><a href="01-podstawy.html">Podstawy</a><a href="02-oop.html">OOP</a><a href="03-solid.html">SOLID</a><a href="04-wzorce.html">Wzorce</a><a href="05-collections.html">Kolekcje</a><a href="06-streams.html">Streams</a><a href="07-wyjatki-testy.html">Wyjątki & Testy</a><a href="08-zaawansowane.html" class="active">Zaawansowane</a><a href="09-maven-gradle.html">Maven/Gradle</a><a href="10-spring-core.html">Spring Core</a><a href="11-spring-boot.html">Spring Boot</a><a href="12-jpa.html">JPA</a><a href="13-security.html">Security</a>
+    <a href="index.html">Strona główna</a><a href="01-podstawy.html">Podstawy</a><a href="02-oop.html">OOP</a><a href="03-solid.html">SOLID</a><a href="04-wzorce.html">Wzorce</a><a href="05-collections.html">Kolekcje</a><a href="06-streams.html">Streams</a><a href="07-wyjatki-testy.html">Wyjątki &amp; Testy</a><a href="08-zaawansowane.html" class="active">Zaawansowane</a><a href="09-maven-gradle.html">Maven/Gradle</a><a href="10-spring-core.html">Spring Core</a><a href="11-spring-boot.html">Spring Boot</a><a href="12-jpa.html">JPA</a><a href="13-security.html">Security</a>
   </div>
 </nav>
 <div class="breadcrumb"><a href="index.html">java.mastery</a><span class="sep">/</span><span class="current">08 — Zaawansowane</span></div>
 <main class="page-wrap">
   <header class="chapter-header">
     <div class="chapter-num">ROZDZIAŁ 08</div>
-    <h1 class="chapter-title">Zaawansowane —<br>JVM & Concurrency</h1>
+    <h1 class="chapter-title">Zaawansowane —<br>JVM &amp; Concurrency</h1>
     <p class="chapter-desc">Jak działa maszyna wirtualna Javy, Garbage Collection, wielowątkowość, Virtual Threads (Java 21) i zasady Clean Code.</p>
     <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
       <span class="badge purple">Java 21</span>
@@ -42,7 +47,7 @@ java -XX:+UseG1GC -Xms512m -Xmx4g MyApp
 java -XX:+UseZGC MyApp  <span class="cm">// ultra-niskie latency</span></pre>
   </div>
 
-  <h2 class="section-title">Wielowątkowość & Thread Safety</h2>
+  <h2 class="section-title">Wielowątkowość &amp; Thread Safety</h2>
 
   <div class="accordion open">
     <div class="acc-header" onclick="acc(this)">
@@ -52,7 +57,7 @@ java -XX:+UseZGC MyApp  <span class="cm">// ultra-niskie latency</span></pre>
     <div class="acc-body">
       <div class="acc-content">
         <div class="code-block">
-          <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Thread & ExecutorService</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+          <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Thread &amp; ExecutorService</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
           <pre><span class="cm">// ExecutorService — zarządzany pul wątków</span>
 <span class="kw">try</span> (<span class="kw">var</span> executor = <span class="cl">Executors</span>.<span class="mth">newFixedThreadPool</span>(<span class="num">4</span>)) {
     <span class="cl">Future</span>&lt;<span class="cl">String</span>&gt; future = executor.<span class="mth">submit</span>(() -> <span class="mth">pobierzDane</span>());
@@ -190,7 +195,7 @@ licznik.<span class="mth">incrementAndGet</span>();
     <div class="acc-body">
       <div class="acc-content">
         <div class="code-block">
-          <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Naming & Constants</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+          <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Naming &amp; Constants</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
           <pre><span class="cm">// ❌ Magiczne liczby i skrótowe nazwy</span>
 <span class="kw">int</span> d = <span class="num">7</span>;
 <span class="cl">List</span>&lt;<span class="cl">User</span>&gt; ul = repo.<span class="mth">getAll</span>();
@@ -247,8 +252,8 @@ licznik.<span class="mth">incrementAndGet</span>();
   </div>
 
   <nav class="chapter-nav">
-    <a href="07-wyjatki-testy.html"><div class="nav-dir">← Poprzedni</div><div class="nav-title">Wyjątki & Testy</div></a>
-    <a href="09-maven-gradle.html" class="next"><div class="nav-dir">Następny →</div><div class="nav-title">Maven & Gradle</div></a>
+    <a href="07-wyjatki-testy.html"><div class="nav-dir">← Poprzedni</div><div class="nav-title">Wyjątki &amp; Testy</div></a>
+    <a href="09-maven-gradle.html" class="next"><div class="nav-dir">Następny →</div><div class="nav-title">Maven &amp; Gradle</div></a>
   </nav>
 </main>
 <footer class="site-footer">Źródła: <a href="https://docs.oracle.com/en/java/javase/21/docs/api/" target="_blank">Oracle Java 21 API</a> · <a href="https://openjdk.org/projects/loom/" target="_blank">Project Loom</a></footer>
