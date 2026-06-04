@@ -3,22 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>06 — Streams & Lambdy | Java Mastery</title>
+<title>06 — Streams &amp; Lambdy | Java Mastery</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <nav class="topnav">
   <div class="topnav-logo">java<span>.mastery</span></div>
   <div class="topnav-links">
-    <a href="index.html">Strona główna</a><a href="01-podstawy.html">Podstawy</a><a href="02-oop.html">OOP</a><a href="03-solid.html">SOLID</a><a href="04-wzorce.html">Wzorce</a><a href="05-collections.html">Kolekcje</a><a href="06-streams.html" class="active">Streams</a><a href="07-wyjatki-testy.html">Wyjątki & Testy</a><a href="08-zaawansowane.html">Zaawansowane</a><a href="09-maven-gradle.html">Maven/Gradle</a><a href="10-spring-core.html">Spring Core</a><a href="11-spring-boot.html">Spring Boot</a><a href="12-jpa.html">JPA</a><a href="13-security.html">Security</a>
+    <a href="index.html">Strona główna</a><a href="01-podstawy.html">Podstawy</a><a href="02-oop.html">OOP</a><a href="03-solid.html">SOLID</a><a href="04-wzorce.html">Wzorce</a><a href="05-collections.html">Kolekcje</a><a href="06-streams.html" class="active">Streams</a><a href="07-wyjatki-testy.html">Wyjątki &amp; Testy</a><a href="08-zaawansowane.html">Zaawansowane</a><a href="09-maven-gradle.html">Maven/Gradle</a><a href="10-spring-core.html">Spring Core</a><a href="11-spring-boot.html">Spring Boot</a><a href="12-jpa.html">JPA</a><a href="13-security.html">Security</a>
   </div>
 </nav>
-<div class="breadcrumb"><a href="index.html">java.mastery</a><span class="sep">/</span><span class="current">06 — Streams, Lambdy & Optional</span></div>
+<div class="breadcrumb"><a href="index.html">java.mastery</a><span class="sep">/</span><span class="current">06 — Streams, Lambdy &amp; Optional</span></div>
 <main class="page-wrap">
   <header class="chapter-header">
     <div class="chapter-num">ROZDZIAŁ 06</div>
-    <h1 class="chapter-title">Streams, Lambdy<br>& Optional</h1>
+    <h1 class="chapter-title">Streams, Lambdy<br>&amp; Optional</h1>
     <p class="chapter-desc">Programowanie funkcyjne w Javie 8+. Stream API pozwala przetwarzać kolekcje deklaratywnie, zw ięźle i wydajnie.</p>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
+      <span class="badge">Java 8+</span>
+      <span class="badge">Poziom: Średniozaawansowany</span>
+    </div>
   </header>
 
   <h2 class="section-title">Wyrażenia Lambda</h2>
@@ -36,13 +40,14 @@
 <span class="cl">Comparator</span>&lt;<span class="cl">String</span>&gt; comp3 = <span class="cl">String</span>::<span class="mth">compareTo</span>;
 
 <span class="cm">// Wbudowane interfejsy funkcyjne</span>
-<span class="cl">Predicate</span>&lt;<span class="cl">String</span>&gt; czyDlugi = s -> s.<span class="mth">length</span>() > <span class="num">5</span>;
+<span class="cl">Predicate</span>&lt;<span class="cl">String</span>&gt; czyDlugi = s -> s.<span class="mth">length</span>() &gt; <span class="num">5</span>;
 <span class="cl">Function</span>&lt;<span class="cl">String</span>, <span class="cl">Integer</span>&gt; dlugosc = <span class="cl">String</span>::<span class="mth">length</span>;
 <span class="cl">Consumer</span>&lt;<span class="cl">String</span>&gt; drukuj = System.out::println;
 <span class="cl">Supplier</span>&lt;<span class="cl">List</span>&lt;<span class="cl">String</span>&gt;&gt; nowaLista = <span class="cl">ArrayList</span>::<span class="kw">new</span>;</pre>
   </div>
 
   <h2 class="section-title">Pipeline Stream API</h2>
+  <p class="prose">Stream to sekwencja elementów przetwarzana leniwie (lazy). Pipeline składa się z źródła, operacji pośrednich (map, filter, sorted) i jednej operacji terminalnej (collect, forEach, reduce).</p>
   <div class="code-block">
     <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Stream Pipeline</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
     <pre><span class="kw">record</span> <span class="cl">Pracownik</span>(<span class="cl">String</span> imie, <span class="cl">String</span> dzial, <span class="kw">double</span> pensja) {}
@@ -67,10 +72,71 @@
 
   <div class="callout warn">
     <div class="callout-icon">⚠️</div>
-    <div class="callout-body"><strong>Stream można użyć tylko raz!</strong> Po operacji terminalnej stream jest wyczerpany.</div>
+    <div class="callout-body"><strong>Stream można użyć tylko raz!</strong> Po operacji terminalnej stream jest wyczerpany. Aby wielokrotnie przetwarzać te same dane — użyj kolekcji lub utwórz nowy stream.</div>
+  </div>
+
+  <h2 class="section-title">Collectors — Zbieranie Wyników</h2>
+  <p class="prose">Collectors to fabryki strategii gromadzenia elementów strumienia. <code>Collectors.toList()</code> jest najczęstszy, ale możliwości jest znacznie więcej.</p>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Collectors — przydatne metody</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="cl">List</span>&lt;<span class="cl">String</span>&gt; imiona = <span class="cl">List</span>.<span class="mth">of</span>(<span class="str">"Anna"</span>, <span class="str">"Bartek"</span>, <span class="str">"Celina"</span>, <span class="str">"Bartek"</span>);
+
+<span class="cm">// toList / toSet / toUnmodifiableList</span>
+<span class="cl">List</span>&lt;<span class="cl">String</span>&gt; lista = imiona.<span class="mth">stream</span>().<span class="mth">collect</span>(<span class="cl">Collectors</span>.<span class="mth">toList</span>());
+<span class="cl">Set</span>&lt;<span class="cl">String</span>&gt; unikalne = imiona.<span class="mth">stream</span>().<span class="mth">collect</span>(<span class="cl">Collectors</span>.<span class="mth">toSet</span>());
+
+<span class="cm">// joining — łączenie Stringów</span>
+<span class="cl">String</span> csv = imiona.<span class="mth">stream</span>()
+    .<span class="mth">collect</span>(<span class="cl">Collectors</span>.<span class="mth">joining</span>(<span class="str">", "</span>, <span class="str">"["</span>, <span class="str">"]"</span>));
+<span class="cm">// wynik: "[Anna, Bartek, Celina, Bartek]"</span>
+
+<span class="cm">// groupingBy — grupowanie w Map</span>
+<span class="cl">Map</span>&lt;<span class="kw">Integer</span>, <span class="cl">List</span>&lt;<span class="cl">String</span>&gt;&gt; wgDlugosci = imiona.<span class="mth">stream</span>()
+    .<span class="mth">collect</span>(<span class="cl">Collectors</span>.<span class="mth">groupingBy</span>(<span class="cl">String</span>::<span class="mth">length</span>));
+
+<span class="cm">// partitioningBy — podział na dwie grupy (true/false)</span>
+<span class="cl">Map</span>&lt;<span class="cl">Boolean</span>, <span class="cl">List</span>&lt;<span class="cl">String</span>&gt;&gt; podział = imiona.<span class="mth">stream</span>()
+    .<span class="mth">collect</span>(<span class="cl">Collectors</span>.<span class="mth">partitioningBy</span>(s -> s.<span class="mth">length</span>() &gt; <span class="num">4</span>));
+
+<span class="cm">// counting / summarizingDouble</span>
+<span class="cl">Map</span>&lt;<span class="cl">String</span>, <span class="cl">Long</span>&gt; liczbaPoKazdy = imiona.<span class="mth">stream</span>()
+    .<span class="mth">collect</span>(<span class="cl">Collectors</span>.<span class="mth">groupingBy</span>(s -> s, <span class="cl">Collectors</span>.<span class="mth">counting</span>()));
+<span class="cm">// wynik: {Anna=1, Bartek=2, Celina=1}</span></pre>
+  </div>
+
+  <h2 class="section-title">flatMap i reduce</h2>
+  <p class="prose"><code>flatMap</code> spłaszcza strumień strumieni — przydatny gdy każdy element produkuje kolekcję. <code>reduce</code> agreguje elementy do jednej wartości.</p>
+  <div class="code-block">
+    <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">flatMap &amp; reduce</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
+    <pre><span class="cm">// flatMap — lista list → jedna lista</span>
+<span class="cl">List</span>&lt;<span class="cl">List</span>&lt;<span class="cl">String</span>&gt;&gt; grupy = <span class="cl">List</span>.<span class="mth">of</span>(
+    <span class="cl">List</span>.<span class="mth">of</span>(<span class="str">"Anna"</span>, <span class="str">"Bartek"</span>),
+    <span class="cl">List</span>.<span class="mth">of</span>(<span class="str">"Celina"</span>)
+);
+<span class="cl">List</span>&lt;<span class="cl">String</span>&gt; wszyscy = grupy.<span class="mth">stream</span>()
+    .<span class="mth">flatMap</span>(<span class="cl">Collection</span>::<span class="mth">stream</span>)
+    .<span class="mth">toList</span>();  <span class="cm">// [Anna, Bartek, Celina]</span>
+
+<span class="cm">// flatMap ze Stringów na słowa</span>
+<span class="cl">List</span>&lt;<span class="cl">String</span>&gt; zdania = <span class="cl">List</span>.<span class="mth">of</span>(<span class="str">"hello world"</span>, <span class="str">"foo bar"</span>);
+<span class="cl">List</span>&lt;<span class="cl">String</span>&gt; slowa = zdania.<span class="mth">stream</span>()
+    .<span class="mth">flatMap</span>(s -> <span class="cl">Arrays</span>.<span class="mth">stream</span>(s.<span class="mth">split</span>(<span class="str">" "</span>)))
+    .<span class="mth">toList</span>();  <span class="cm">// [hello, world, foo, bar]</span>
+
+<span class="cm">// reduce — sumowanie</span>
+<span class="kw">int</span> suma = <span class="cl">IntStream</span>.<span class="mth">rangeClosed</span>(<span class="num">1</span>, <span class="num">10</span>)
+    .<span class="mth">reduce</span>(<span class="num">0</span>, <span class="cl">Integer</span>::<span class="mth">sum</span>);  <span class="cm">// 55</span>
+
+<span class="cm">// reduce — najdłuższy String</span>
+<span class="cl">Optional</span>&lt;<span class="cl">String</span>&gt; najdluzszy = imiona.<span class="mth">stream</span>()
+    .<span class="mth">reduce</span>((a, b) -> a.<span class="mth">length</span>() &gt;= b.<span class="mth">length</span>() ? a : b);
+
+<span class="cm">// Skróty dla liczb: sum(), average(), min(), max()</span>
+<span class="kw">double</span> srednia = <span class="cl">IntStream</span>.<span class="mth">of</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>).<span class="mth">average</span>().<span class="mth">orElse</span>(<span class="num">0</span>);</pre>
   </div>
 
   <h2 class="section-title">Optional — eliminacja NullPointerException</h2>
+  <p class="prose"><code>Optional</code> to kontener na wartość, która może być pusta. Zastępuje <code>null</code> jako sygnał braku wartości — zmuszając kod wywołujący do jawnej obsługi obu przypadków.</p>
   <div class="code-block">
     <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="code-lang">Optional — dobre praktyki</span><button class="copy-btn" onclick="copyCode(this)">Kopiuj</button></div>
     <pre><span class="cm">// ✅ Z Optional — bezpieczne i deklaratywne</span>
@@ -79,12 +145,26 @@
 opt.<span class="mth">ifPresent</span>(u -> System.out.<span class="mth">println</span>(u.<span class="mth">getImie</span>()));
 <span class="cl">String</span> imie = opt.<span class="mth">map</span>(<span class="cl">Uzytkownik</span>::getImie).<span class="mth">orElse</span>(<span class="str">"Anonim"</span>);
 <span class="cl">Uzytkownik</span> u2 = opt.<span class="mth">orElseThrow</span>(
-    () -> <span class="kw">new</span> <span class="cl">EntityNotFoundException</span>(<span class="str">"id="</span> + id));</pre>
+    () -> <span class="kw">new</span> <span class="cl">EntityNotFoundException</span>(<span class="str">"id="</span> + id));
+
+<span class="cm">// ifPresentOrElse — Java 9+</span>
+opt.<span class="mth">ifPresentOrElse</span>(
+    u -> System.out.<span class="mth">println</span>(<span class="str">"Znaleziono: "</span> + u.<span class="mth">getImie</span>()),
+    () -> System.out.<span class="mth">println</span>(<span class="str">"Brak użytkownika"</span>)
+);
+
+<span class="cm">// ❌ Anty-wzorzec — pokonuje sens Optional</span>
+<span class="kw">if</span> (opt.<span class="mth">isPresent</span>()) { opt.<span class="mth">get</span>(); }  <span class="cm">// to samo co if(x != null)</span></pre>
+  </div>
+
+  <div class="callout tip">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body"><strong>Optional w zwracanych typach.</strong> Używaj <code>Optional</code> jako typ zwracany metody, nigdy jako typ pola klasy ani parametru metody. Nie opakowuj kolekcji w Optional — pusta lista jest lepsza niż <code>Optional&lt;List&gt;</code>.</div>
   </div>
 
   <nav class="chapter-nav">
-    <a href="05-collections.html"><div class="nav-dir">← Poprzedni</div><div class="nav-title">Kolekcje & Generics</div></a>
-    <a href="07-wyjatki-testy.html" class="next"><div class="nav-dir">Następny →</div><div class="nav-title">Wyjątki & Testy</div></a>
+    <a href="05-collections.html"><div class="nav-dir">← Poprzedni</div><div class="nav-title">Kolekcje &amp; Generics</div></a>
+    <a href="07-wyjatki-testy.html" class="next"><div class="nav-dir">Następny →</div><div class="nav-title">Wyjątki &amp; Testy</div></a>
   </nav>
 </main>
 <footer class="site-footer">Źródła: <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/stream/package-summary.html" target="_blank">Oracle Stream API</a> · <a href="https://baeldung.com/java-streams" target="_blank">Baeldung Streams</a></footer>
