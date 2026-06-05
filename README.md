@@ -1,4 +1,4 @@
-# java.mastery
+# java.guide
 
 Kompletny przewodnik po dobrych praktykach w Javie — od składni po Spring Boot.
 
