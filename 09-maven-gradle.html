@@ -3,12 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>09 — Maven & Gradle | Java Mastery</title>
+<title>09 — Maven &amp; Gradle | java.guide</title>
+<meta name="description" content="Maven i Gradle w Javie — pom.xml, build.gradle, cykl życia buildu, zarządzanie zależnościami. Kiedy wybrać Maven vs Gradle.">
+<meta property="og:title" content="09 — Maven &amp; Gradle | java.guide">
+<meta property="og:description" content="Maven i Gradle w Javie — pom.xml, build.gradle i zarządzanie zależnościami.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="java.guide">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <nav class="topnav">
-  <div class="topnav-logo">java<span>.mastery</span></div>
+  <div class="topnav-logo">java<span>.guide</span></div>
   <div class="topnav-links">
     <a href="index.html">Strona główna</a>
     <a href="01-podstawy.html">Podstawy</a>
@@ -17,7 +22,7 @@
     <a href="04-wzorce.html">Wzorce</a>
     <a href="05-collections.html">Kolekcje</a>
     <a href="06-streams.html">Streams</a>
-    <a href="07-wyjatki-testy.html">Wyjątki</a>
+    <a href="07-wyjatki-testy.html">Wyjątki &amp; Testy</a>
     <a href="08-zaawansowane.html">Zaawansowane</a>
     <a href="09-maven-gradle.html" class="active">Maven/Gradle</a>
     <a href="10-spring-core.html">Spring Core</a>
@@ -27,13 +32,13 @@
   </div>
 </nav>
 <div class="breadcrumb">
-  <a href="index.html">java.mastery</a><span class="sep">/</span>
-  <span class="current">09 — Maven & Gradle</span>
+  <a href="index.html">java.guide</a><span class="sep">/</span>
+  <span class="current">09 — Maven &amp; Gradle</span>
 </div>
 <main class="page-wrap">
   <header class="chapter-header">
     <div class="chapter-num">ROZDZIAŁ 09</div>
-    <h1 class="chapter-title">Maven & Gradle</h1>
+    <h1 class="chapter-title">Maven &amp; Gradle</h1>
     <p class="chapter-desc">Narzędzia budowania projektu — zarządzanie zależnościami, cykl życia buildu, struktura projektu. Maven to standard enterprise, Gradle dominuje w ekosystemie Android i Spring Boot.</p>
     <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
       <span class="badge purple">Maven 3</span>
@@ -43,7 +48,7 @@
   </header>
 
   <h2 class="section-title">Maven — Struktura Projektu</h2>
-  <p class="prose">Maven narzuca <strong>konwencję nad konfiguracją</strong> — standardową strukturę katalogów. Jeśli jej przestrzegasz, Maven "wie" gdzie szukać kodu, testów i zasobów.</p>
+  <p class="prose">Maven narzuca <strong>konwencję nad konfiguracją</strong> — standardową strukturę katalogów. Jeśli jej przestrzegasz, Maven &bdquo;wie&rdquo; gdzie szukać kodu, testów i zasobów.</p>
 
   <div class="code-block">
     <div class="code-header"><div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
@@ -135,7 +140,7 @@
     <pre><span class="cm"># Zbuduj i uruchom testy</span>
 mvn clean package
 
-<span class="cm"># Pomiń testy (szybszy build)</span>
+<span class="cm"># Pominąć testy (szybszy build)</span>
 mvn clean package -DskipTests
 
 <span class="cm"># Uruchom tylko jeden test</span>

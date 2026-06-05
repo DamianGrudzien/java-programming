@@ -3,14 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>13 — Spring Security | Java Mastery</title>
+<title>13 — Spring Security | java.guide</title>
+<meta name="description" content="Spring Security i JWT — SecurityFilterChain, tokeny JWT, BCrypt, @PreAuthorize i autoryzacja na poziomie metody. Bezstanowe API.">
+<meta property="og:title" content="13 — Spring Security &amp; JWT | java.guide">
+<meta property="og:description" content="Autentykacja i autoryzacja — JWT, BCrypt i SecurityFilterChain w Spring Security 6.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="java.guide">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <nav class="topnav">
-  <div class="topnav-logo">java<span>.mastery</span></div>
+  <div class="topnav-logo">java<span>.guide</span></div>
   <div class="topnav-links">
     <a href="index.html">Strona główna</a>
+    <a href="01-podstawy.html">Podstawy</a>
+    <a href="02-oop.html">OOP</a>
+    <a href="03-solid.html">SOLID</a>
+    <a href="04-wzorce.html">Wzorce</a>
+    <a href="05-collections.html">Kolekcje</a>
+    <a href="06-streams.html">Streams</a>
+    <a href="07-wyjatki-testy.html">Wyjątki &amp; Testy</a>
+    <a href="08-zaawansowane.html">Zaawansowane</a>
     <a href="09-maven-gradle.html">Maven/Gradle</a>
     <a href="10-spring-core.html">Spring Core</a>
     <a href="11-spring-boot.html">Spring Boot</a>
@@ -19,13 +32,13 @@
   </div>
 </nav>
 <div class="breadcrumb">
-  <a href="index.html">java.mastery</a><span class="sep">/</span>
-  <span class="current">13 — Spring Security & JWT</span>
+  <a href="index.html">java.guide</a><span class="sep">/</span>
+  <span class="current">13 — Spring Security &amp; JWT</span>
 </div>
 <main class="page-wrap">
   <header class="chapter-header">
     <div class="chapter-num">ROZDZIAŁ 13</div>
-    <h1 class="chapter-title">Spring Security<br>& JWT</h1>
+    <h1 class="chapter-title">Spring Security<br>&amp; JWT</h1>
     <p class="chapter-desc">Autentykacja i autoryzacja w aplikacjach Spring Boot. Bezstanowe API z JWT, ochrona endpointów, hashowanie haseł i podstawy OAuth2.</p>
     <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
       <span class="badge purple">Spring Security 6</span>
@@ -128,7 +141,7 @@
         <span class="kw">try</span> {
             <span class="kw">var</span> claims = <span class="mth">parsuj</span>(token);
             <span class="kw">return</span> claims.<span class="mth">getSubject</span>().<span class="mth">equals</span>(user.<span class="mth">getUsername</span>())
-                && !claims.<span class="mth">getExpiration</span>().<span class="mth">before</span>(<span class="kw">new</span> <span class="cl">Date</span>());
+                &amp;&amp; !claims.<span class="mth">getExpiration</span>().<span class="mth">before</span>(<span class="kw">new</span> <span class="cl">Date</span>());
         } <span class="kw">catch</span> (<span class="cl">JwtException</span> e) {
             <span class="kw">return false</span>;
         }
@@ -169,7 +182,7 @@
         <span class="kw">var</span> token = header.<span class="mth">substring</span>(<span class="num">7</span>); <span class="cm">// usuń "Bearer "</span>
         <span class="kw">var</span> username = jwt.<span class="mth">parsuj</span>(token).<span class="mth">getSubject</span>();
 
-        <span class="kw">if</span> (username != <span class="kw">null</span> && <span class="cl">SecurityContextHolder</span>.<span class="mth">getContext</span>().<span class="mth">getAuthentication</span>() == <span class="kw">null</span>) {
+        <span class="kw">if</span> (username != <span class="kw">null</span> &amp;&amp; <span class="cl">SecurityContextHolder</span>.<span class="mth">getContext</span>().<span class="mth">getAuthentication</span>() == <span class="kw">null</span>) {
             <span class="kw">var</span> user = uds.<span class="mth">loadUserByUsername</span>(username);
 
             <span class="kw">if</span> (jwt.<span class="mth">czyWazny</span>(token, user)) {
@@ -261,7 +274,7 @@
   </div>
 
   <nav class="chapter-nav">
-    <a href="12-jpa.html"><div class="nav-dir">← Poprzedni</div><div class="nav-title">JPA & Hibernate</div></a>
+    <a href="12-jpa.html"><div class="nav-dir">← Poprzedni</div><div class="nav-title">JPA &amp; Hibernate</div></a>
     <a href="index.html" class="next"><div class="nav-dir">🏠 Koniec</div><div class="nav-title">Strona główna</div></a>
   </nav>
 </main>
